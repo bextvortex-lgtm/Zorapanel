@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071b49">
+<title>ZoraPanel | VTU & Digital Solutions</title>
+<style>
+:root{--navy:#071b49;--blue:#155eef;--bright:#267bff;--orange:#ff9d00;--bg:#f4f7fc;--muted:#667085;--line:#e7ecf4}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#15233f}
+header{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+.nav{max-width:1120px;margin:auto;padding:15px 20px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;font-size:22px;font-weight:800;color:var(--navy)}
+.mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#155eef,#071b49);color:#fff;display:grid;place-items:center;font-size:25px;font-weight:900;position:relative}
+.mark:after{content:"";position:absolute;width:28px;height:4px;background:var(--orange);transform:rotate(-35deg);border-radius:4px}
+nav a{color:#43516b;text-decoration:none;margin-left:22px;font-size:14px;font-weight:600}
+.btn{border:0;border-radius:10px;padding:12px 17px;background:var(--blue);color:#fff;font-weight:700;cursor:pointer}
+.btn.secondary{background:#eef4ff;color:var(--blue)}
+main{max-width:1120px;margin:30px auto;padding:0 20px}
+.hero{background:linear-gradient(120deg,#071b49,#155eef);color:#fff;border-radius:22px;padding:42px;display:grid;grid-template-columns:1.4fr .8fr;gap:20px;align-items:center}
+.hero h1{font-size:clamp(30px,5vw,48px);line-height:1.08;margin:12px 0}
+.hero p{color:#d9e5ff;line-height:1.7;max-width:540px}
+.pill{display:inline-block;background:#ffffff20;padding:8px 12px;border-radius:30px;font-size:12px;font-weight:700}
+.hero-art{background:#ffffff16;border:1px solid #ffffff35;border-radius:18px;padding:22px;text-align:center}
+.hero-art .big{font-size:58px}.hero-art strong{display:block;font-size:19px;margin:8px}
+.section-title{margin:30px 0 14px;font-size:22px}
+.services{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.service,.panel,.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:19px}
+.service{cursor:pointer;text-align:left}.service:hover{border-color:#9dbaff;transform:translateY(-2px)}
+.service .ico{font-size:25px}.service strong{display:block;margin:12px 0 5px}.service small{color:var(--muted)}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.panel h3{margin:0 0 15px}.muted{color:var(--muted);font-size:13px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.stat span{font-size:12px;color:var(--muted)}.stat b{display:block;font-size:21px;margin-top:8px}
+form{display:grid;gap:12px}label{font-size:13px;font-weight:700}input,select{width:100%;padding:12px;border:1px solid #d8dfeb;border-radius:9px;background:#fff;font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.notice{background:#fff7e8;border:1px solid #ffe0a3;color:#805300;border-radius:10px;padding:12px;font-size:12px;line-height:1.5;margin-top:14px}
+.transaction{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}.transaction:last-child{border:0}
+footer{text-align:center;padding:30px 20px;color:var(--muted);font-size:12px}
+@media(max-width:700px){nav{display:none}.hero{grid-template-columns:1fr;padding:27px}.hero-art{display:none}.services{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.nav{padding:12px 16px}main{padding:0 14px;margin:18px auto}}
+</style>
+</head>
+<body>
+<header><div class="nav"><div class="brand"><span class="mark">Z</span>ZoraPanel</div><nav><a href="#services">Services</a><a href="#dashboard">Dashboard</a><a href="#purchase">Buy data</a></nav><button class="btn" onclick="document.querySelector('#purchase').scrollIntoView({behavior:'smooth'})">Get Started</button></div></header>
+<main>
+<section class="hero"><div><span class="pill">VTU & DIGITAL SOLUTIONS</span><h1>Your Digital World,<br>Simplified.</h1><p>Buy data, recharge airtime and manage everyday digital services from one simple platform.</p><button class="btn" onclick="document.querySelector('#services').scrollIntoView({behavior:'smooth'})">Explore Services</button></div><div class="hero-art"><div class="big">⚡</div><strong>Fast. Simple. Convenient.</strong><span class="muted" style="color:#d9e5ff">A smarter way to pay for everyday services.</span></div></section>
+<h2 class="section-title" id="services">Our Services</h2>
+<div class="services">
+<button class="service" onclick="choose('data')"><span class="ico">📶</span><strong>Buy Data</strong><small>MTN, Airtel, Glo & 9mobile</small></button>
+<button class="service" onclick="choose('airtime')"><span class="ico">📱</span><strong>Airtime</strong><small>Recharge any network</small></button>
+<button class="service" onclick="choose('electricity')"><span class="ico">💡</span><strong>Electricity</strong><small>Power bill payments</small></button>
+<button class="service" onclick="choose('tv')"><span class="ico">📺</span><strong>Cable TV</strong><small>TV subscription renewals</small></button>
+</div>
+<h2 class="section-title" id="dashboard">Dashboard preview</h2>
+<div class="stats"><div class="stat"><span>Demo wallet balance</span><b>₦5,000.00</b></div><div class="stat"><span>Transactions</span><b>3</b></div><div class="stat"><span>Account status</span><b style="color:#159455">Demo</b></div></div>
+<div class="layout" style="margin-top:16px">
+<section class="panel" id="purchase"><h3 id="formTitle">Try a demo purchase</h3><p class="muted">This is a frontend demonstration. No money will be charged and no service will be delivered.</p>
+<form id="buyForm"><div><label for="service">Service</label><select id="service" onchange="updateForm()"><option value="data">Data</option><option value="airtime">Airtime</option><option value="electricity">Electricity</option><option value="tv">Cable TV</option></select></div>
+<div><label for="network">Network / Provider</label><select id="network"><option>MTN</option><option>Airtel</option><option>Glo</option><option>9mobile</option></select></div>
+<div><label for="phone">Phone number / Account number</label><input id="phone" inputmode="numeric" placeholder="e.g. 08012345678" required></div>
+<div id="planWrap"><label for="plan">Plan</label><select id="plan"><option>1GB - ₦500 (demo)</option><option>2GB - ₦1,000 (demo)</option><option>5GB - ₦2,000 (demo)</option></select></div>
+<button class="btn" type="submit">Preview transaction</button></form>
+<div class="notice">DEMO MODE ONLY: wallet balance, payment processing, and automatic VTU delivery are not connected yet.</div></section>
+<section class="panel"><h3>Recent activity</h3><div id="transactions"><div class="transaction"><span>Data purchase · MTN</span><b>₦500</b></div><div class="transaction"><span>Airtime · Airtel</span><b>₦1,000</b></div><div class="transaction"><span>Wallet funding · Demo</span><b>+₦5,000</b></div></div></section>
+</div>
+</main><footer>© 2026 ZoraPanel. VTU & Digital Solutions. This is a demonstration website.</footer>
+<script>
+function choose(s){document.getElementById('service').value=s;updateForm();document.getElementById('purchase').scrollIntoView({behavior:'smooth'})}
+function updateForm(){let s=document.getElementById('service').value;document.getElementById('formTitle').textContent='Try a demo '+s+' purchase';document.getElementById('planWrap').style.display=s==='data'?'block':'none';document.getElementById('network').innerHTML=(s==='tv'?['DStv','GOtv','Startimes']:s==='electricity'?['IKEDC','EKEDC','AEDC','Other']:['MTN','Airtel','Glo','9mobile']).map(x=>'<option>'+x+'</option>').join('');document.getElementById('phone').placeholder=s==='electricity'?'Meter/account number':'Phone number / account number'}
+document.getElementById('buyForm').addEventListener('submit',e=>{e.preventDefault();let service=document.getElementById('service').value;let target=document.getElementById('phone').value;alert('Demo only: '+service+' request for '+target+'. No payment was made and no service was delivered.')});
+</script>
+</body></html>
