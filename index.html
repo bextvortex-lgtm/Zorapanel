@@ -173,25 +173,47 @@ document.querySelector("footer").insertAdjacentHTML(
 const message = document.getElementById("authMessage");
 const logoutButton = document.getElementById("logoutButton");
 
+
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
   e.preventDefault();
-  message.textContent = "Creating your account...";
-  const email = document.getElementById("regEmail").value;
+
+  const username = document.getElementById("regUsername").value.trim();
+  const fullName = document.getElementById("regFullName").value.trim();
+  const phone = document.getElementById("regPhone").value.trim();
+  const email = document.getElementById("regEmail").value.trim();
   const password = document.getElementById("regPassword").value;
+  const confirmPassword = document.getElementById("regConfirmPassword").value;
+
+  if (password !== confirmPassword) {
+    message.textContent = "Passwords do not match.";
+    return;
+  }
+
+  if (username.length < 3) {
+    message.textContent = "Username must contain at least 3 characters.";
+    return;
+  }
+
+  message.textContent = "Creating your account...";
 
   const { data, error } = await supabaseClient.auth.signUp({
-  email,
-  password,
-  options: {
-    emailRedirectTo: "https://bextvortex-lgtm.github.io/Zorapanel/"
-  }
-});
+    email,
+    password,
+    options: {
+      emailRedirectTo: "https://bextvortex-lgtm.github.io/Zorapanel/",
+      data: {
+        username: username,
+        full_name: fullName,
+        phone: phone
+      }
+    }
+  });
 
   message.textContent = error
     ? error.message
     : data.session
-      ? "Registration successful. You are logged in!"
-      : "Registration received. Please check your email to confirm your account.";
+      ? "Registration successful!"
+      : "Account created! Please check your email to verify your account.";
 });
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
