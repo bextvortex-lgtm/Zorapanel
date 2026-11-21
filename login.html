@@ -470,6 +470,47 @@ window.location.href = "index.html";
       <p id="electricityMessage"></p>
     </div>
   `;
+} else if (service === "cable") {
+  serviceArea.innerHTML = `
+    <div class="card">
+      <h3>Cable TV Subscription</h3>
+
+      <label>Select Provider</label>
+      <select id="cableProvider">
+        <option value="">Choose Provider</option>
+        <option value="DStv">DStv</option>
+        <option value="GOtv">GOtv</option>
+        <option value="StarTimes">StarTimes</option>
+      </select>
+
+      <br><br>
+
+      <label>Smartcard / IUC Number</label>
+      <input
+        type="text"
+        id="cableNumber"
+        placeholder="Enter smartcard number"
+      >
+
+      <br><br>
+
+      <label>Select Subscription Plan</label>
+      <select id="cablePlan">
+        <option value="">Choose Package</option>
+        <option value="Basic">Basic</option>
+        <option value="Standard">Standard</option>
+        <option value="Premium">Premium</option>
+      </select>
+
+      <br><br>
+
+      <button onclick="validateCable()">
+        Proceed to Payment
+      </button>
+
+      <p id="cableMessage"></p>
+    </div>
+  `;
 } else {
     serviceArea.innerHTML = `
       <div class="card">
@@ -611,6 +652,48 @@ function cancelData() {
 
 function cancelElectricity() {
   document.getElementById("electricityMessage").innerHTML = "";
+}
+  function validateCable() {
+  const provider = document.getElementById("cableProvider").value;
+  const number = document.getElementById("cableNumber").value.trim();
+  const plan = document.getElementById("cablePlan").value;
+  const message = document.getElementById("cableMessage");
+
+  if (!provider) {
+    message.textContent = "Please select a cable TV provider.";
+    return;
+  }
+
+  if (!/^\d{6,20}$/.test(number)) {
+    message.textContent = "Please enter a valid smartcard number.";
+    return;
+  }
+
+  if (!plan) {
+    message.textContent = "Please select a subscription plan.";
+    return;
+  }
+
+  message.innerHTML = `
+    <div style="margin-top:15px;padding:15px;background:#f0f5ff;border-radius:10px;">
+      <h3>Confirm Cable TV Subscription</h3>
+      <p><strong>Provider:</strong> ${provider}</p>
+      <p><strong>Smartcard Number:</strong> ${number}</p>
+      <p><strong>Package:</strong> ${plan}</p>
+
+      <button onclick="alert('Actual subscriptions will be enabled after VTU API integration.')">
+        Confirm Subscription
+      </button>
+
+      <button onclick="cancelCable()" style="background:#777;margin-top:8px;">
+        Cancel
+      </button>
+    </div>
+  `;
+}
+
+function cancelCable() {
+  document.getElementById("cableMessage").innerHTML = "";
 }
 </script>
 </body>
