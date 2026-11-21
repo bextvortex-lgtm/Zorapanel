@@ -371,7 +371,51 @@ window.location.href = "index.html";
 <p id="airtimeMessage"></p>
       </div>
     `;
-  } else {
+} else if (service === "data") {
+  serviceArea.innerHTML = `
+    <div class="card">
+      <h3>Buy Data</h3>
+
+      <label>Select Network</label>
+      <select id="dataNetwork">
+        <option value="">Choose Network</option>
+        <option value="MTN">MTN</option>
+        <option value="Airtel">Airtel</option>
+        <option value="Glo">Glo</option>
+        <option value="9mobile">9mobile</option>
+      </select>
+
+      <br><br>
+
+      <label>Phone Number</label>
+      <input
+        type="tel"
+        id="dataPhone"
+        placeholder="Enter phone number"
+        maxlength="11"
+      >
+
+      <br><br>
+
+      <label>Select Data Plan</label>
+      <select id="dataPlan">
+        <option value="">Choose Data Plan</option>
+        <option value="500MB">500MB</option>
+        <option value="1GB">1GB</option>
+        <option value="2GB">2GB</option>
+        <option value="5GB">5GB</option>
+      </select>
+
+      <br><br>
+
+      <button onclick="validateData()">
+        Proceed to Purchase
+      </button>
+
+      <p id="dataMessage"></p>
+    </div>
+  `;
+} else {
     serviceArea.innerHTML = `
       <div class="card">
         <h3>Service Coming Soon</h3>
@@ -422,6 +466,48 @@ window.location.href = "index.html";
   const message = document.getElementById("airtimeMessage");
   message.innerHTML = "";
   }
+  function validateData() {
+  const network = document.getElementById("dataNetwork").value;
+  const phone = document.getElementById("dataPhone").value.trim();
+  const plan = document.getElementById("dataPlan").value;
+  const message = document.getElementById("dataMessage");
+
+  if (!network) {
+    message.textContent = "Please select a network.";
+    return;
+  }
+
+  if (!/^0[789][01]\d{8}$/.test(phone)) {
+    message.textContent = "Please enter a valid 11-digit Nigerian phone number.";
+    return;
+  }
+
+  if (!plan) {
+    message.textContent = "Please select a data plan.";
+    return;
+  }
+
+  message.innerHTML = `
+    <div style="margin-top:15px;padding:15px;background:#f0f5ff;border-radius:10px;">
+      <h3>Confirm Data Purchase</h3>
+      <p><strong>Network:</strong> ${network}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
+      <p><strong>Data Plan:</strong> ${plan}</p>
+
+      <button onclick="alert('Actual purchases will be enabled after VTU API integration.')">
+        Confirm Purchase
+      </button>
+
+      <button onclick="cancelData()" style="background:#777;margin-top:8px;">
+        Cancel
+      </button>
+    </div>
+  `;
+}
+
+function cancelData() {
+  document.getElementById("dataMessage").innerHTML = "";
+}
 </script>
 </body>
 </html>
