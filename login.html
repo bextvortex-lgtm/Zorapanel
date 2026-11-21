@@ -415,6 +415,61 @@ window.location.href = "index.html";
       <p id="dataMessage"></p>
     </div>
   `;
+} else if (service === "electricity") {
+  serviceArea.innerHTML = `
+    <div class="card">
+      <h3>Electricity Bill Payment</h3>
+
+      <label>Select Distribution Company</label>
+      <select id="electricityProvider">
+        <option value="">Choose Provider</option>
+        <option value="PHED">PHED</option>
+        <option value="EEDC">EEDC</option>
+        <option value="EKEDC">EKEDC</option>
+        <option value="IKEDC">IKEDC</option>
+        <option value="AEDC">AEDC</option>
+        <option value="BEDC">BEDC</option>
+        <option value="IBEDC">IBEDC</option>
+        <option value="KEDCO">KEDCO</option>
+      </select>
+
+      <br><br>
+
+      <label>Meter Type</label>
+      <select id="meterType">
+        <option value="">Choose Meter Type</option>
+        <option value="Prepaid">Prepaid</option>
+        <option value="Postpaid">Postpaid</option>
+      </select>
+
+      <br><br>
+
+      <label>Meter Number</label>
+      <input
+        type="text"
+        id="meterNumber"
+        placeholder="Enter meter number"
+      >
+
+      <br><br>
+
+      <label>Amount (₦)</label>
+      <input
+        type="number"
+        id="electricityAmount"
+        placeholder="Enter amount"
+        min="500"
+      >
+
+      <br><br>
+
+      <button onclick="validateElectricity()">
+        Proceed to Payment
+      </button>
+
+      <p id="electricityMessage"></p>
+    </div>
+  `;
 } else {
     serviceArea.innerHTML = `
       <div class="card">
@@ -507,6 +562,55 @@ window.location.href = "index.html";
 
 function cancelData() {
   document.getElementById("dataMessage").innerHTML = "";
+}
+  function validateElectricity() {
+  const provider = document.getElementById("electricityProvider").value;
+  const meterType = document.getElementById("meterType").value;
+  const meterNumber = document.getElementById("meterNumber").value.trim();
+  const amount = Number(document.getElementById("electricityAmount").value);
+  const message = document.getElementById("electricityMessage");
+
+  if (!provider) {
+    message.textContent = "Please select your electricity provider.";
+    return;
+  }
+
+  if (!meterType) {
+    message.textContent = "Please select your meter type.";
+    return;
+  }
+
+  if (!/^\d{6,20}$/.test(meterNumber)) {
+    message.textContent = "Please enter a valid meter number.";
+    return;
+  }
+
+  if (!Number.isFinite(amount) || amount < 500) {
+    message.textContent = "Minimum payment amount is ₦500.";
+    return;
+  }
+
+  message.innerHTML = `
+    <div style="margin-top:15px;padding:15px;background:#f0f5ff;border-radius:10px;">
+      <h3>Confirm Electricity Payment</h3>
+      <p><strong>Provider:</strong> ${provider}</p>
+      <p><strong>Meter Type:</strong> ${meterType}</p>
+      <p><strong>Meter Number:</strong> ${meterNumber}</p>
+      <p><strong>Amount:</strong> ₦${amount.toLocaleString("en-NG")}</p>
+
+      <button onclick="alert('Actual payments will be enabled after VTU API integration.')">
+        Confirm Payment
+      </button>
+
+      <button onclick="cancelElectricity()" style="background:#777;margin-top:8px;">
+        Cancel
+      </button>
+    </div>
+  `;
+}
+
+function cancelElectricity() {
+  document.getElementById("electricityMessage").innerHTML = "";
 }
 </script>
 </body>
