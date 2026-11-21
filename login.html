@@ -171,6 +171,7 @@ const { data: profile, error: profileError } = await supabaseClient
 .eq("id", user.id)
 .maybeSingle();
 
+ message.textContent = "Username found: " + (profile?.username || "EMPTY");
 const { data: wallet, error: walletError } = await supabaseClient
 .from("wallets")
 .select("balance")
