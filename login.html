@@ -1,0 +1,202 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login | ZoraPanel</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--navy:#071B49;--blue:#155EEF;--orange:#FF9D00}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;font-family:Arial,sans-serif;color:#172033}
+header{background:white;padding:15px;text-align:center;border-bottom:1px solid #eee}
+.logo{height:45px;max-width:190px;object-fit:contain}
+main{max-width:480px;margin:25px auto;padding:15px}
+.card{background:white;padding:22px;border-radius:13px;border:1px solid #e6eaf1;margin-bottom:16px}
+h2{color:var(--navy);margin-top:0}
+label{display:block;font-size:13px;font-weight:bold;margin:13px 0 6px}
+input{width:100%;padding:12px;border:1px solid #d8deea;border-radius:8px;font-size:15px}
+button{width:100%;padding:13px;border:0;border-radius:8px;background:var(--blue);color:white;font-weight:bold;margin-top:16px}
+.link{color:var(--blue);cursor:pointer;text-align:center;font-size:14px}
+.hidden{display:none!important}
+.balance{background:var(--navy);color:white;padding:20px;border-radius:12px}
+.balance h1{font-size:28px}
+</style>
+</head>
+<body>
+<header>
+<a href="index.html"><img class="logo" src="zorapanel-logo.png" alt="ZoraPanel"></a>
+</header>
+
+<main>
+<section class="card" id="authArea">
+<div id="loginArea">
+<h2>Welcome Back</h2>
+<p>Log in to your ZoraPanel account.</p>
+<form id="loginForm">
+<label>Email Address</label>
+<input id="loginEmail" type="email" required>
+<label>Password</label>
+<input id="loginPassword" type="password" required>
+<button type="submit">Login</button>
+</form>
+<p class="link" id="showRegister">Don't have an account? Create one</p>
+</div>
+
+<div id="registerArea" class="hidden">
+<h2>Create Account</h2>
+<form id="registerForm">
+<label>Username</label>
+<input id="regUsername" required minlength="3">
+<label>Full Name</label>
+<input id="regFullName" required>
+<label>Phone Number</label>
+<input id="regPhone" type="tel" required>
+<label>Email Address</label>
+<input id="regEmail" type="email" required>
+<label>Password</label>
+<input id="regPassword" type="password" required minlength="6">
+<label>Confirm Password</label>
+<input id="regConfirmPassword" type="password" required minlength="6">
+<button type="submit">Create Account</button>
+</form>
+<p class="link" id="showLogin">Already have an account? Login</p>
+</div>
+<p id="authMessage" aria-live="polite"></p>
+</section>
+
+<section class="card hidden" id="customerDashboard">
+<h2>Welcome, <span id="customerName">Customer</span>!</h2>
+<div class="balance">
+<p>My Wallet Balance</p>
+<h1 id="customerBalance">₦0.00</h1>
+<p>Available Balance</p>
+</div>
+<h3>My Account Details</h3>
+<p>Username: <strong id="customerUsername">-</strong></p>
+<p>Full Name: <strong id="customerFullName">-</strong></p>
+<p>Phone: <strong id="customerPhone">-</strong></p>
+<h3>Our Services</h3>
+<p>📱 Airtime　 📶 Data</p>
+<p>⚡ Electricity　 📺 Cable TV</p>
+<p style="font-size:12px;color:#777">Wallet funding and purchases will be enabled after payment and VTU integration.</p>
+<button id="logoutButton" style="background:#dc3545">Logout</button>
+</section>
+</main>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+"https://hwdkzubgishdpqwetlck.supabase.co",
+"sb_publishable_iEaC5F6rKj-D-1PNHbWPMQ_JWCf4-m5"
+);
+
+const loginArea = document.getElementById("loginArea");
+const registerArea = document.getElementById("registerArea");
+const dashboard = document.getElementById("customerDashboard");
+const message = document.getElementById("authMessage");
+
+document.getElementById("showRegister").onclick = () => {
+loginArea.classList.add("hidden");
+registerArea.classList.remove("hidden");
+message.textContent = "";
+};
+
+document.getElementById("showLogin").onclick = () => {
+registerArea.classList.add("hidden");
+loginArea.classList.remove("hidden");
+message.textContent = "";
+};
+
+document.getElementById("registerForm").addEventListener("submit", async (e) => {
+e.preventDefault();
+
+const username = document.getElementById("regUsername").value.trim();
+const fullName = document.getElementById("regFullName").value.trim();
+const phone = document.getElementById("regPhone").value.trim();
+const email = document.getElementById("regEmail").value.trim();
+const password = document.getElementById("regPassword").value;
+const confirmPassword = document.getElementById("regConfirmPassword").value;
+
+if (password !== confirmPassword) {
+message.textContent = "Passwords do not match.";
+return;
+}
+
+message.textContent = "Creating your account...";
+
+const { error } = await supabaseClient.auth.signUp({
+email,
+password,
+options: {
+emailRedirectTo: "https://bextvortex-lgtm.github.io/Zorapanel/login.html",
+data: {
+username,
+full_name: fullName,
+phone
+}
+}
+});
+
+message.textContent = error ? error.message :
+"Account created! Check your email to verify your account, then log in.";
+});
+
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+e.preventDefault();
+message.textContent = "Logging in...";
+
+const { error } = await supabaseClient.auth.signInWithPassword({
+email: document.getElementById("loginEmail").value.trim(),
+password: document.getElementById("loginPassword").value
+});
+
+message.textContent = error ? error.message : "Login successful!";
+});
+
+async function loadCustomerDashboard(user) {
+const { data: profile, error: profileError } = await supabaseClient
+.from("profiles")
+.select("username, full_name, phone")
+.eq("id", user.id)
+.maybeSingle();
+
+const { data: wallet, error: walletError } = await supabaseClient
+.from("wallets")
+.select("balance")
+.eq("user_id", user.id)
+.maybeSingle();
+
+if (profileError || walletError || !profile || !wallet) {
+message.textContent = "Could not load account details. Please refresh.";
+return;
+}
+
+document.getElementById("customerName").textContent = profile.full_name || "Customer";
+document.getElementById("customerUsername").textContent = profile.username || "-";
+document.getElementById("customerFullName").textContent = profile.full_name || "-";
+document.getElementById("customerPhone").textContent = profile.phone || "-";
+document.getElementById("customerBalance").textContent =
+Number(wallet.balance).toLocaleString("en-NG", {
+style:"currency", currency:"NGN"
+});
+}
+
+supabaseClient.auth.onAuthStateChange((event, session) => {
+if (session) {
+document.getElementById("authArea").classList.add("hidden");
+dashboard.classList.remove("hidden");
+setTimeout(() => loadCustomerDashboard(session.user), 0);
+} else {
+document.getElementById("authArea").classList.remove("hidden");
+dashboard.classList.add("hidden");
+}
+});
+
+document.getElementById("logoutButton").onclick = async () => {
+await supabaseClient.auth.signOut();
+window.location.href = "index.html";
+};
+</script>
+</body>
+</html>
