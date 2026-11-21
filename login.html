@@ -178,7 +178,7 @@ async function loadCustomerDashboard(user) {
     profile?.full_name ||
     user.email?.split("@")[0] ||
     "User";
-
+message.textContent = "Retrieved username: " + username;
   document.getElementById("customerName").textContent = username;
 
   const { data: wallet, error: walletError } = await supabaseClient
