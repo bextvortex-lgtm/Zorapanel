@@ -164,29 +164,41 @@ password: document.getElementById("loginPassword").value
 message.textContent = error ? error.message : "Login successful!";
 });
 
-async function loadCustomerDashboard(user) {
-const { data: profile, error: profileError } = await supabaseClient
-.from("profiles")
-.select("username, full_name, phone")
-.eq("id", user.id)
-.maybeSingle();
 
-const { data: wallet, error: walletError } = await supabaseClient
-.from("wallets")
-.select("balance")
-.eq("user_id", user.id)
-.maybeSingle();
-console.log(profile);
-if (profileError || walletError || !profile || !wallet) {
-message.textContent = "Could not load account details. Please refresh.";
-return;
+async function loadCustomerDashboard(user) {
+  const { data: profile, error: profileError } = await supabaseClient
+    .from("profiles")
+    .select("username, full_name, phone")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const username =
+    profile?.username ||
+    user.user_metadata?.username ||
+    profile?.full_name ||
+    user.email?.split("@")[0] ||
+    "User";
+
+  document.getElementById("customerName").textContent = username;
+
+  const { data: wallet, error: walletError } = await supabaseClient
+    .from("wallets")
+    .select("balance")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (walletError || !wallet) {
+    message.textContent = "Could not load wallet. Please refresh.";
+    return;
+  }
+
+  document.getElementById("customerBalance").textContent =
+    Number(wallet.balance).toLocaleString("en-NG", {
+      style: "currency",
+      currency: "NGN"
+    });
 }
 
-document.getElementById("customerName").textContent = profile.username;
-document.getElementById("customerBalance").textContent =
-Number(wallet.balance).toLocaleString("en-NG", {
-style:"currency", currency:"NGN"
-});
 }
  let isPasswordRecovery = false;
 supabaseClient.auth.onAuthStateChange((event, session) => {
