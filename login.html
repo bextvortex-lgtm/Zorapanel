@@ -362,6 +362,13 @@ window.location.href = "index.html";
           placeholder="Enter amount"
           min="50"
         >
+        <br><br>
+
+<button onclick="validateAirtime()">
+  Proceed to Purchase
+</button>
+
+<p id="airtimeMessage"></p>
       </div>
     `;
   } else {
@@ -375,6 +382,32 @@ window.location.href = "index.html";
 
   serviceArea.scrollIntoView({ behavior: "smooth" });
 }
+  function validateAirtime() {
+  const network = document.getElementById("airtimeNetwork").value;
+  const phone = document.getElementById("airtimePhone").value.trim();
+  const amount = Number(document.getElementById("airtimeAmount").value);
+  const message = document.getElementById("airtimeMessage");
+
+  if (!network) {
+    message.textContent = "Please select a network.";
+    return;
+  }
+
+  if (!/^0[789][01]\d{8}$/.test(phone)) {
+    message.textContent = "Please enter a valid 11-digit Nigerian phone number.";
+    return;
+  }
+
+  if (!Number.isFinite(amount) || amount < 50) {
+    message.textContent = "Minimum airtime amount is ₦50.";
+    return;
+  }
+
+  message.textContent =
+    "Details look good! Network: " + network +
+    ", Phone: " + phone +
+    ", Amount: ₦" + amount.toLocaleString("en-NG");
+  }
 </script>
 </body>
 </html>
