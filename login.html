@@ -22,6 +22,27 @@ button{width:100%;padding:13px;border:0;border-radius:8px;background:var(--blue)
 .hidden{display:none!important}
 .balance{background:var(--navy);color:white;padding:20px;border-radius:12px}
 .balance h1{font-size:28px}
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin: 12px 0 18px;
+}
+
+.services-grid button {
+  background: #f0f5ff;
+  color: #14264f;
+  border: 1px solid #dbe4f5;
+  border-radius: 10px;
+  padding: 18px 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.services-grid button:active {
+  transform: scale(0.98);
+}
 </style>
 </head>
 <body>
@@ -91,8 +112,25 @@ button{width:100%;padding:13px;border:0;border-radius:8px;background:var(--blue)
 <p>Available Balance</p>
 </div>
 <h3>Our Services</h3>
-<p>📱 Airtime　 📶 Data</p>
-<p>⚡ Electricity　 📺 Cable TV</p>
+
+<div class="services-grid">
+  <button onclick="openService('airtime')">
+    📱<br>Airtime
+  </button>
+
+  <button onclick="openService('data')">
+    📶<br>Data
+  </button>
+
+  <button onclick="openService('electricity')">
+    ⚡<br>Electricity
+  </button>
+
+  <button onclick="openService('cable')">
+    📺<br>Cable TV
+  </button>
+</div>
+  <div id="serviceArea"></div>
 <p style="font-size:12px;color:#777">Wallet funding and purchases will be enabled after payment and VTU integration.</p>
 </section>
 </main>
@@ -288,6 +326,25 @@ document.getElementById("logoutButton").onclick = async () => {
 await supabaseClient.auth.signOut();
 window.location.href = "index.html";
 };
+  function openService(service) {
+  const serviceArea = document.getElementById("serviceArea");
+
+  const serviceNames = {
+    airtime: "Buy Airtime",
+    data: "Buy Data",
+    electricity: "Pay Electricity Bill",
+    cable: "Pay Cable TV"
+  };
+
+  serviceArea.innerHTML = `
+    <div class="card">
+      <h3>${serviceNames[service]}</h3>
+      <p>This service will be available soon.</p>
+    </div>
+  `;
+
+  serviceArea.scrollIntoView({ behavior: "smooth" });
+}
 </script>
 </body>
 </html>
