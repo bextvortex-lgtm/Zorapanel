@@ -171,7 +171,6 @@ const { data: profile, error: profileError } = await supabaseClient
 .eq("id", user.id)
 .maybeSingle();
 
- message.textContent = "Username found: " + (profile?.username || "EMPTY");
 const { data: wallet, error: walletError } = await supabaseClient
 .from("wallets")
 .select("balance")
@@ -183,7 +182,7 @@ message.textContent = "Could not load account details. Please refresh.";
 return;
 }
 
-document.getElementById("customerName").textContent = "TEST-" + (profile.username || "EMPTY");
+document.getElementById("customerName").textContent = profile.username;
 document.getElementById("customerBalance").textContent =
 Number(wallet.balance).toLocaleString("en-NG", {
 style:"currency", currency:"NGN"
