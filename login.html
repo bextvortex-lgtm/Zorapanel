@@ -195,11 +195,12 @@ Number(wallet.balance).toLocaleString("en-NG", {
 style:"currency", currency:"NGN"
 });
 }
-
 supabaseClient.auth.onAuthStateChange((event, session) => {
 
   if (event === "PASSWORD_RECOVERY") {
-    document.getElementById("authArea").classList.add("hidden");
+    document.getElementById("authArea").classList.remove("hidden");
+    loginArea.classList.add("hidden");
+    registerArea.classList.add("hidden");
     dashboard.classList.add("hidden");
     document.getElementById("resetPasswordArea").classList.remove("hidden");
     message.textContent = "Enter your new password.";
