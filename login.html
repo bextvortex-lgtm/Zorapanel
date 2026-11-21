@@ -183,7 +183,7 @@ message.textContent = "Could not load account details. Please refresh.";
 return;
 }
 
-document.getElementById("customerName").textContent = profile.username || profile.full_name || user.email.split("@")[0];
+document.getElementById("customerName").textContent = "TEST-" + (profile.username || "EMPTY");
 document.getElementById("customerBalance").textContent =
 Number(wallet.balance).toLocaleString("en-NG", {
 style:"currency", currency:"NGN"
