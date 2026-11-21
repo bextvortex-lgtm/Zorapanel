@@ -161,6 +161,29 @@ const accountHTML = `
     <button class="btn" type="submit">Log In</button>
   </form>
 
+<div id="customerDashboard" hidden style="margin-top:25px;">
+  <h2>Welcome, <span id="customerName">Customer</span>!</h2>
+
+  <div style="background:#071B49;color:white;padding:22px;border-radius:14px;margin:15px 0;">
+    <p style="margin:0;color:#dce7ff;">My Wallet Balance</p>
+    <h1 id="customerBalance" style="margin:12px 0;">₦0.00</h1>
+    <p style="margin:0;font-size:13px;">Available Balance</p>
+  </div>
+
+  <h3>My Account Details</h3>
+  <p>Username: <strong id="customerUsername">-</strong></p>
+  <p>Full Name: <strong id="customerFullName">-</strong></p>
+  <p>Phone: <strong id="customerPhone">-</strong></p>
+
+  <h3>Our Services</h3>
+  <p>📱 Airtime　　📶 Data</p>
+  <p>⚡ Electricity　　📺 Cable TV</p>
+
+  <p style="color:#777;font-size:12px;">
+    Wallet funding and purchases will be enabled after payment and VTU integration.
+  </p>
+</div>
+  
   <p id="authMessage" class="muted" aria-live="polite"></p>
   <button id="logoutButton" class="btn secondary" hidden>Log Out</button>
 </section>
@@ -236,12 +259,59 @@ logoutButton.addEventListener("click", async () => {
   message.textContent = error ? error.message : "You have logged out.";
 });
 
+
+async function loadCustomerDashboard(user) {
+  const { data: profile, error: profileError } = await supabaseClient
+    .from("profiles")
+    .select("username, full_name, phone")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const { data: wallet, error: walletError } = await supabaseClient
+    .from("wallets")
+    .select("balance")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (profileError || walletError || !profile || !wallet) {
+    message.textContent = "Could not load your account details. Please refresh.";
+    return;
+  }
+
+  document.getElementById("customerName").textContent =
+    profile.full_name || "Customer";
+
+  document.getElementById("customerUsername").textContent =
+    profile.username || "-";
+
+  document.getElementById("customerFullName").textContent =
+    profile.full_name || "-";
+
+  document.getElementById("customerPhone").textContent =
+    profile.phone || "-";
+
+  document.getElementById("customerBalance").textContent =
+    Number(wallet.balance).toLocaleString("en-NG", {
+      style: "currency",
+      currency: "NGN"
+    });
+}
+
 supabaseClient.auth.onAuthStateChange((event, session) => {
   logoutButton.hidden = !session;
+
+  document.getElementById("customerDashboard").hidden = !session;
+  document.getElementById("registerForm").hidden = !!session;
+  document.getElementById("loginForm").hidden = !!session;
+
   if (session) {
-    message.textContent = "Logged in as " + session.user.email;
+    message.textContent = "Welcome to ZoraPanel!";
+    setTimeout(() => loadCustomerDashboard(session.user), 0);
+  } else {
+    message.textContent = "Please register or log in to continue.";
   }
 });
+
 </script>
   
 </body>
