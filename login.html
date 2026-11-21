@@ -412,8 +412,15 @@ window.location.href = "index.html";
     <button onclick="alert('Actual purchases will be enabled after VTU API integration.')">
       Confirm Purchase
     </button>
+    <button onclick="cancelAirtime()" style="background:#777;margin-top:8px;">
+  Cancel
+</button>
   </div>
 `;
+  }
+  function cancelAirtime() {
+  const message = document.getElementById("airtimeMessage");
+  message.innerHTML = "";
   }
 </script>
 </body>
