@@ -87,10 +87,6 @@ button{width:100%;padding:13px;border:0;border-radius:8px;background:var(--blue)
 <h1 id="customerBalance">₦0.00</h1>
 <p>Available Balance</p>
 </div>
-<h3>My Account Details</h3>
-<p>Username: <strong id="customerUsername">-</strong></p>
-<p>Full Name: <strong id="customerFullName">-</strong></p>
-<p>Phone: <strong id="customerPhone">-</strong></p>
 <h3>Our Services</h3>
 <p>📱 Airtime　 📶 Data</p>
 <p>⚡ Electricity　 📺 Cable TV</p>
@@ -186,10 +182,7 @@ message.textContent = "Could not load account details. Please refresh.";
 return;
 }
 
-document.getElementById("customerName").textContent = profile.full_name || "Customer";
-document.getElementById("customerUsername").textContent = profile.username || "-";
-document.getElementById("customerFullName").textContent = profile.full_name || "-";
-document.getElementById("customerPhone").textContent = profile.phone || "-";
+document.getElementById("customerName").textContent = profile.username || "Customer";
 document.getElementById("customerBalance").textContent =
 Number(wallet.balance).toLocaleString("en-NG", {
 style:"currency", currency:"NGN"
