@@ -329,19 +329,49 @@ window.location.href = "index.html";
   function openService(service) {
   const serviceArea = document.getElementById("serviceArea");
 
-  const serviceNames = {
-    airtime: "Buy Airtime",
-    data: "Buy Data",
-    electricity: "Pay Electricity Bill",
-    cable: "Pay Cable TV"
-  };
+  if (service === "airtime") {
+    serviceArea.innerHTML = `
+      <div class="card">
+        <h3>Buy Airtime</h3>
 
-  serviceArea.innerHTML = `
-    <div class="card">
-      <h3>${serviceNames[service]}</h3>
-      <p>This service will be available soon.</p>
-    </div>
-  `;
+        <label> Select Network </label>
+        <select id="airtimeNetwork">
+          <option value="">Choose Network</option>
+          <option value="MTN">MTN</option>
+          <option value="Airtel">Airtel</option>
+          <option value="Glo">Glo</option>
+          <option value="9mobile">9mobile</option>
+        </select>
+
+        <br><br>
+
+        <label>Phone Number</label>
+        <input
+          type="tel"
+          id="airtimePhone"
+          placeholder="Enter phone number"
+          maxlength="11"
+        >
+
+        <br><br>
+
+        <label>Amount (₦)</label>
+        <input
+          type="number"
+          id="airtimeAmount"
+          placeholder="Enter amount"
+          min="50"
+        >
+      </div>
+    `;
+  } else {
+    serviceArea.innerHTML = `
+      <div class="card">
+        <h3>Service Coming Soon</h3>
+        <p>This service will be available soon.</p>
+      </div>
+    `;
+  }
 
   serviceArea.scrollIntoView({ behavior: "smooth" });
 }
