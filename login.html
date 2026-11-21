@@ -195,15 +195,26 @@ Number(wallet.balance).toLocaleString("en-NG", {
 style:"currency", currency:"NGN"
 });
 }
+ let isPasswordRecovery = false;
 supabaseClient.auth.onAuthStateChange((event, session) => {
 
   if (event === "PASSWORD_RECOVERY") {
+    isPasswordRecovery = true;
+
     document.getElementById("authArea").classList.remove("hidden");
     loginArea.classList.add("hidden");
     registerArea.classList.add("hidden");
     dashboard.classList.add("hidden");
     document.getElementById("resetPasswordArea").classList.remove("hidden");
+
     message.textContent = "Enter your new password.";
+    return;
+  }
+
+  if (isPasswordRecovery) {
+    document.getElementById("authArea").classList.remove("hidden");
+    dashboard.classList.add("hidden");
+    document.getElementById("resetPasswordArea").classList.remove("hidden");
     return;
   }
 
@@ -211,12 +222,15 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
     document.getElementById("authArea").classList.add("hidden");
     dashboard.classList.remove("hidden");
     document.getElementById("resetPasswordArea").classList.add("hidden");
+
     setTimeout(() => loadCustomerDashboard(session.user), 0);
+
   } else {
     document.getElementById("authArea").classList.remove("hidden");
     dashboard.classList.add("hidden");
     document.getElementById("resetPasswordArea").classList.add("hidden");
   }
+
 });
 document.getElementById("forgotPassword").onclick = async () => {
   const email = document.getElementById("loginEmail").value.trim();
@@ -257,6 +271,7 @@ document.getElementById("forgotPassword").onclick = async () => {
     message.textContent = error.message;
   } else {
     message.textContent = "Password updated successfully!";
+    isPasswordRecovery = false;
     await supabaseClient.auth.signOut();
     document.getElementById("resetPasswordArea").classList.add("hidden");
     document.getElementById("authArea").classList.remove("hidden");
