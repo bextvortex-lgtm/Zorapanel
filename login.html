@@ -81,7 +81,10 @@ button{width:100%;padding:13px;border:0;border-radius:8px;background:var(--blue)
 </section>
 
 <section class="card hidden" id="customerDashboard">
-<h2>Welcome, <span id="customerName">User</span>!</h2>
+<div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:18px;">
+  <h2 style="margin:0;">Welcome, <span id="customerName">User</span>!</h2>
+  <button id="logoutButton" style="background:#dc3545; color:white; border:0; padding:9px 12px; border-radius:7px; width:auto;">Logout</button>
+</div>
 <div class="balance">
 <p>My Wallet Balance</p>
 <h1 id="customerBalance">₦0.00</h1>
