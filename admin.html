@@ -173,7 +173,10 @@ if (!statsError && stats) {
   document.getElementById("totalCustomers").textContent =
     stats.totalCustomers;
 } else {
-  console.error("Could not load customer statistics:", statsError);
+  document.getElementById("totalCustomers").textContent =
+    "Error: " + (statsError?.message || "Unknown error");
+
+  console.error("Statistics error:", statsError);
 }
 verifyAdminAccess();
       </script>
