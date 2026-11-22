@@ -523,7 +523,8 @@ window.location.href = "index.html";
 
   serviceArea.scrollIntoView({ behavior: "smooth" });
 }
-  function validateAirtime() {
+  
+function validateAirtime() {
   const network = document.getElementById("airtimeNetwork").value;
   const phone = document.getElementById("airtimePhone").value.trim();
   const amount = Number(document.getElementById("airtimeAmount").value);
@@ -539,26 +540,78 @@ window.location.href = "index.html";
     return;
   }
 
-  if (!Number.isFinite(amount) || amount < 50) {
-    message.textContent = "Minimum airtime amount is ₦50.";
+  if (!Number.isFinite(amount) || amount < 100) {
+    message.textContent = "Minimum airtime amount is ₦100.";
     return;
   }
 
   message.innerHTML = `
-  <div style="margin-top:15px;padding:15px;background:#f0f5ff;border-radius:10px;">
-    <h3>Confirm Airtime Purchase</h3>
-    <p><strong>Network:</strong> ${network}</p>
-    <p><strong>Phone:</strong> ${phone}</p>
-    <p><strong>Amount:</strong> ₦${amount.toLocaleString("en-NG")}</p>
-    <button onclick="alert('Actual purchases will be enabled after VTU API integration.')">
-      Confirm Purchase
-    </button>
-    <button onclick="cancelAirtime()" style="background:#777;margin-top:8px;">
-  Cancel
-</button>
-  </div>
-`;
+    <div style="margin-top:15px;padding:15px;background:#f0f5ff;border-radius:10px;">
+      <h3>Confirm Airtime Purchase</h3>
+      <p><strong>Network:</strong> ${network}</p>
+      <p><strong>Phone:</strong> ${phone}</p>
+      <p><strong>Amount:</strong> ₦${amount.toLocaleString("en-NG")}</p>
+
+      <button onclick="confirmAirtimePurchase()">
+        Confirm Purchase
+      </button>
+
+      <button onclick="cancelAirtime()" style="background:#777;margin-top:8px;">
+        Cancel
+      </button>
+    </div>
+  `;
+}
+
+async function confirmAirtimePurchase() {
+  const network = document.getElementById("airtimeNetwork").value.toLowerCase();
+  const phone = document.getElementById("airtimePhone").value.trim();
+  const amount = Number(document.getElementById("airtimeAmount").value);
+  const message = document.getElementById("airtimeMessage");
+
+  const serviceID = network.includes("9mobile") ? "etisalat" :
+                    network.includes("etisalat") ? "etisalat" : network;
+
+  message.textContent = "Checking airtime order...";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "gsubz-airtime-purchase",
+      {
+        body: {
+          serviceID,
+          phone,
+          amount
+        }
+      }
+    );
+
+  if (error) {
+    message.textContent = "Error: " + error.message;
+    return;
   }
+
+  if (!data.success) {
+    message.textContent = data.error || "Unable to process request.";
+    return;
+  }
+
+  if (!data.sufficientBalance) {
+    message.textContent = "Insufficient wallet balance.";
+    return;
+  }
+
+  message.innerHTML = `
+    <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
+      <h3>Simulation Successful!</h3>
+      <p>Network: ${data.network}</p>
+      <p>Phone: ${data.phone}</p>
+      <p>Amount: ₦${data.amount}</p>
+      <p>Wallet balance: ₦${data.walletBalance}</p>
+      <p><strong>No money was deducted. No airtime was sent.</strong></p>
+    </div>
+  `;
+}
   function cancelAirtime() {
   const message = document.getElementById("airtimeMessage");
   message.innerHTML = "";
