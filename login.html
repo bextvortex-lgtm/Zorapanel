@@ -733,9 +733,9 @@ function cancelData() {
       <p><strong>Meter Number:</strong> ${meterNumber}</p>
       <p><strong>Amount:</strong> ₦${amount.toLocaleString("en-NG")}</p>
 
-      <button onclick="alert('Actual payments will be enabled after VTU API integration.')">
-        Confirm Payment
-      </button>
+      <button onclick="confirmElectricityPayment()">
+  Confirm Payment
+</button>
 
       <button onclick="cancelElectricity()" style="background:#777;margin-top:8px;">
         Cancel
