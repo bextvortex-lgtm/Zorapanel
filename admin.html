@@ -132,6 +132,44 @@ section h3 {
 </section>
 
 </main>
+  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const supabaseClient = window.supabase.createClient(
+  "YOUR_SUPABASE_PROJECT_URL",
+  "YOUR_SUPABASE_PUBLISHABLE_KEY"
+);
+
+async function verifyAdminAccess() {
+  document.body.style.display = "none";
+
+  const { data: sessionData } =
+    await supabaseClient.auth.getSession();
+
+  if (!sessionData.session) {
+    document.body.innerHTML =
+      "<h2>Please log in first.</h2>";
+    document.body.style.display = "block";
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient.functions.invoke("admin-check");
+
+  if (error || !data || !data.isAdmin) {
+    document.body.innerHTML =
+      "<h2>Access denied. Administrator only.</h2>";
+    document.body.style.display = "block";
+    return;
+  }
+
+  document.body.style.display = "block";
+}
+
+verifyAdminAccess();
+      </script>
+  
 
 </body>
   </html>
