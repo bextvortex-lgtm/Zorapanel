@@ -747,6 +747,55 @@ function cancelData() {
 function cancelElectricity() {
   document.getElementById("electricityMessage").innerHTML = "";
 }
+  
+async function confirmElectricityPayment() {
+  const provider = document.getElementById("electricityProvider").value;
+  const meterType = document.getElementById("meterType").value;
+  const meterNumber = document.getElementById("meterNumber").value.trim();
+  const amount = Number(document.getElementById("electricityAmount").value);
+  const message = document.getElementById("electricityMessage");
+
+  message.textContent = "Saving simulation...";
+
+  const { data: userData, error: userError } =
+    await supabaseClient.auth.getUser();
+
+  if (userError || !userData.user) {
+    message.textContent = "Please log in again.";
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("transactions")
+    .insert({
+      user_id: userData.user.id,
+      service: "Electricity Simulation",
+      provider: provider + " (" + meterType + ")",
+      recipient: meterNumber,
+      amount: amount,
+      status: "simulation"
+    });
+
+  if (error) {
+    console.error(error);
+    message.textContent = "Could not save electricity simulation.";
+    return;
+  }
+
+  message.innerHTML = `
+    <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
+      <h3>Electricity Simulation Saved!</h3>
+      <p>Provider: ${provider}</p>
+      <p>Meter Type: ${meterType}</p>
+      <p>Meter Number: ${meterNumber}</p>
+      <p>Amount: ₦${amount.toLocaleString("en-NG")}</p>
+      <p><strong>No money was deducted. No electricity token was generated.</strong></p>
+    </div>
+  `;
+
+  loadTransactionHistory();
+}
+  
   function validateCable() {
   const provider = document.getElementById("cableProvider").value;
   const number = document.getElementById("cableNumber").value.trim();
