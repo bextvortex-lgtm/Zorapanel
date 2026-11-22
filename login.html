@@ -878,7 +878,7 @@ async function confirmCablePayment() {
 
   if (error) {
     console.error(error);
-    message.textContent = "Could not save cable TV simulation.";
+    message.textContent = "Error: " + error.message + " | Code: " + error.code;
     return;
   }
 
