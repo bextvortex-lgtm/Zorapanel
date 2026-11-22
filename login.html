@@ -698,36 +698,22 @@ function cancelCable() {
 }
   
 
+
 async function testAirtimeConnection() {
-  const { data: { session }, error } =
-    await supabaseClient.auth.getSession();
-
-  if (error || !session) {
-    alert("Please log in again.");
-    return;
-  }
-
-  const { data, error: functionError } =
+  const { data, error } =
     await supabaseClient.functions.invoke(
       "gsubz-airtime-purchase",
-      { body: {} }
+      {
+        body: {
+          serviceID: "mtn",
+          phone: "08031234567",
+          amount: 100
+        }
+      }
     );
 
-  if (functionError) {
-    let details = functionError.message;
-
-    try {
-      const response = functionError.context;
-
-      if (response && response.clone) {
-        const result = await response.clone().json();
-        details += " | " + JSON.stringify(result);
-      }
-    } catch (e) {
-      details += " | Could not read server details.";
-    }
-
-    alert(details);
+  if (error) {
+    alert("Error: " + error.message);
     return;
   }
 
