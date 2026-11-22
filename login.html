@@ -927,6 +927,54 @@ async function testAirtimeConnection() {
 }
   
 
+function openFundWallet() {
+  const area = document.getElementById("fundWalletArea");
+
+  area.innerHTML = `
+    <div class="card" style="margin-top:15px;">
+      <h3>Fund Your Wallet</h3>
+
+      <label>Enter Amount (₦)</label>
+      <input
+        type="number"
+        id="fundAmount"
+        placeholder="Minimum ₦100"
+        min="100"
+      >
+
+      <button onclick="previewWalletFunding()">
+        Continue
+      </button>
+
+      <button onclick="document.getElementById('fundWalletArea').innerHTML=''"
+        style="background:#777;margin-top:8px;">
+        Cancel
+      </button>
+
+      <p id="fundWalletMessage"></p>
+    </div>
+  `;
+}
+
+function previewWalletFunding() {
+  const amount = Number(document.getElementById("fundAmount").value);
+  const message = document.getElementById("fundWalletMessage");
+
+  if (!Number.isFinite(amount) || amount < 100) {
+    message.textContent = "Minimum wallet funding amount is ₦100.";
+    return;
+  }
+
+  if (amount > 1000000) {
+    message.textContent = "Maximum funding amount is ₦1,000,000.";
+    return;
+  }
+
+  message.textContent =
+    "Amount: ₦" + amount.toLocaleString("en-NG") +
+    ". Payment gateway integration is not connected yet. No payment has been made.";
+}
+  
 async function loadTransactionHistory() {
   const message = document.getElementById("transactionMessage");
   const list = document.getElementById("transactionList");
