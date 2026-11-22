@@ -697,6 +697,7 @@ function cancelCable() {
   document.getElementById("cableMessage").innerHTML = "";
 }
   
+
 async function testAirtimeConnection() {
   const { data: { session }, error } =
     await supabaseClient.auth.getSession();
@@ -713,7 +714,20 @@ async function testAirtimeConnection() {
     );
 
   if (functionError) {
-    alert("Connection failed: " + functionError.message);
+    let details = functionError.message;
+
+    try {
+      const response = functionError.context;
+
+      if (response && response.clone) {
+        const result = await response.clone().json();
+        details += " | " + JSON.stringify(result);
+      }
+    } catch (e) {
+      details += " | Could not read server details.";
+    }
+
+    alert(details);
     return;
   }
 
