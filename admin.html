@@ -1,1 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZoraPanel Admin Dashboard</title>
 
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f4f6fa;
+  color: #172033;
+}
+
+header {
+  background: #102b50;
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+header h2 {
+  margin: 0;
+}
+
+main {
+  padding: 20px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 15px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card h3 {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.card p {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 0;
+}
+
+section {
+  background: white;
+  padding: 20px;
+  margin-top: 20px;
+  border-radius: 12px;
+}
+
+section h3 {
+  margin-top: 0;
+}
+
+.notice {
+  color: #64748b;
+  font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h2>ZoraPanel Admin</h2>
+  <span>Administration</span>
+</header>
+
+<main>
+
+<h2>Dashboard Overview</h2>
+
+<div class="cards">
+
+  <div class="card">
+    <h3>Total Customers</h3>
+    <p id="totalCustomers">0</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Wallet Balance</h3>
+    <p id="totalWalletBalance">₦0.00</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Transactions</h3>
+    <p id="totalTransactions">0</p>
+  </div>
+
+  <div class="card">
+    <h3>Successful Transactions</h3>
+    <p id="successfulTransactions">0</p>
+  </div>
+
+</div>
+
+<section>
+  <h3>Customer Management</h3>
+  <p class="notice">Customer records will appear here.</p>
+</section>
+
+<section>
+  <h3>Transaction Management</h3>
+  <p class="notice">Customer transactions will appear here.</p>
+</section>
+
+<section>
+  <h3>Wallet Management</h3>
+  <p class="notice">Wallet monitoring will appear here.</p>
+</section>
+
+<section>
+  <h3>Service Management</h3>
+  <p class="notice">Manage available services here.</p>
+</section>
+
+</main>
+
+</body>
+  </html>
