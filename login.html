@@ -797,10 +797,11 @@ async function confirmElectricityPayment() {
   loadTransactionHistory();
 }
   
-  function validateCable() {
+  
+function validateCable() {
   const provider = document.getElementById("cableProvider").value;
   const number = document.getElementById("cableNumber").value.trim();
-  const plan = document.getElementById("cablePlan").value;
+  const selectedPlan = document.getElementById("cablePlan").value;
   const message = document.getElementById("cableMessage");
 
   if (!provider) {
@@ -813,10 +814,13 @@ async function confirmElectricityPayment() {
     return;
   }
 
-  if (!plan) {
+  if (!selectedPlan) {
     message.textContent = "Please select a subscription plan.";
     return;
   }
+
+  const [plan, price] = selectedPlan.split("|");
+  const amount = Number(price);
 
   message.innerHTML = `
     <div style="margin-top:15px;padding:15px;background:#f0f5ff;border-radius:10px;">
@@ -824,8 +828,9 @@ async function confirmElectricityPayment() {
       <p><strong>Provider:</strong> ${provider}</p>
       <p><strong>Smartcard Number:</strong> ${number}</p>
       <p><strong>Package:</strong> ${plan}</p>
+      <p><strong>Simulation Price:</strong> ₦${amount.toLocaleString("en-NG")}</p>
 
-      <button onclick="alert('Actual subscriptions will be enabled after VTU API integration.')">
+      <button onclick="confirmCablePayment()">
         Confirm Subscription
       </button>
 
