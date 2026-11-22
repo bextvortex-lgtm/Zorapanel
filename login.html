@@ -696,24 +696,8 @@ function cancelElectricity() {
 function cancelCable() {
   document.getElementById("cableMessage").innerHTML = "";
 }
-  async function testAirtimeConnection() {
-  const { data: { session }, error } =
-    await supabaseClient.auth.getSession();
-
-  if (error || !session) {
-    alert("Please log in again.");
-    return;
-  }
-
-  const { data, error: functionError } =
-    await supabaseClient.functions.invoke(
-      "gsubz-airtime-purchase",
-      {
-        body: {}
-      }
-    );
-
-  async function testAirtimeConnection() {
+  
+async function testAirtimeConnection() {
   const { data: { session }, error } =
     await supabaseClient.auth.getSession();
 
@@ -729,21 +713,13 @@ function cancelCable() {
     );
 
   if (functionError) {
-    const response = functionError.context;
-
-    let details = "No additional details available.";
-
-    if (response && typeof response.json === "function") {
-      const result = await response.json();
-      details = JSON.stringify(result);
-    }
-
-    alert("Function error: " + details);
+    alert("Connection failed: " + functionError.message);
     return;
   }
 
   alert(JSON.stringify(data));
 }
+
 </script>
 </body>
 </html>
