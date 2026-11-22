@@ -574,6 +574,7 @@ function validateAirtime() {
   `;
 }
 
+
 async function confirmAirtimePurchase() {
   const network = document.getElementById("airtimeNetwork").value.toLowerCase();
   const phone = document.getElementById("airtimePhone").value.trim();
@@ -612,6 +613,31 @@ async function confirmAirtimePurchase() {
     return;
   }
 
+  const { data: userData, error: userError } =
+    await supabaseClient.auth.getUser();
+
+  if (userError || !userData.user) {
+    message.textContent = "Please log in again.";
+    return;
+  }
+
+  const { error: saveError } = await supabaseClient
+    .from("transactions")
+    .insert({
+      user_id: userData.user.id,
+      service: "Airtime Simulation",
+      provider: data.network,
+      recipient: data.phone,
+      amount: data.amount,
+      status: "simulation"
+    });
+
+  if (saveError) {
+    console.error(saveError);
+    message.textContent = "Simulation worked, but transaction history could not be saved.";
+    return;
+  }
+
   message.innerHTML = `
     <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
       <h3>Simulation Successful!</h3>
@@ -622,7 +648,10 @@ async function confirmAirtimePurchase() {
       <p><strong>No money was deducted. No airtime was sent.</strong></p>
     </div>
   `;
+
+  loadTransactionHistory();
 }
+
   function cancelAirtime() {
   const message = document.getElementById("airtimeMessage");
   message.innerHTML = "";
