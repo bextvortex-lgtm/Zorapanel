@@ -167,7 +167,10 @@ async function verifyAdminAccess() {
 }
 const { data: stats, error: statsError } =
   await supabaseClient.functions.invoke("admin-stats");
-
+alert(
+  "Stats response: " + JSON.stringify(stats) +
+  "\nError: " + JSON.stringify(statsError)
+);
 if (!statsError && stats) {
   document.getElementById("totalCustomers").textContent =
     stats.totalCustomers;
