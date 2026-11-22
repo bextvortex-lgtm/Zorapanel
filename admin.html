@@ -140,6 +140,7 @@ const supabaseClient = window.supabase.createClient(
   "https://hwdkzubgishdpqwetlck.supabase.co",
 "sb_publishable_iEaC5F6rKj-D-1PNHbWPMQ_JWCf4-m5");
 
+
 async function verifyAdminAccess() {
   document.body.style.display = "none";
 
@@ -147,8 +148,7 @@ async function verifyAdminAccess() {
     await supabaseClient.auth.getSession();
 
   if (!sessionData.session) {
-    document.body.innerHTML =
-      "<h2>Please log in first.</h2>";
+    document.body.innerHTML = "<h2>Please log in first.</h2>";
     document.body.style.display = "block";
     return;
   }
@@ -164,23 +164,28 @@ async function verifyAdminAccess() {
   }
 
   document.body.style.display = "block";
-}
-const { data: stats, error: statsError } =
-  await supabaseClient.functions.invoke("admin-stats");
-alert(
-  "Stats response: " + JSON.stringify(stats) +
-  "\nError: " + JSON.stringify(statsError)
-);
-if (!statsError && stats) {
-  document.getElementById("totalCustomers").textContent =
-    stats.totalCustomers;
-} else {
-  document.getElementById("totalCustomers").textContent =
-    "Error: " + (statsError?.message || "Unknown error");
 
-  console.error("Statistics error:", statsError);
+  // Load customer statistics
+  const { data: stats, error: statsError } =
+    await supabaseClient.functions.invoke("admin-stats");
+
+  alert(
+    "Stats response: " + JSON.stringify(stats) +
+    "\nError: " + JSON.stringify(statsError)
+  );
+
+  if (!statsError && stats) {
+    document.getElementById("totalCustomers").textContent =
+      stats.totalCustomers;
+  } else {
+    document.getElementById("totalCustomers").textContent =
+      "Error loading";
+    console.error("Statistics error:", statsError);
+  }
 }
+
 verifyAdminAccess();
+
       </script>
   
 
