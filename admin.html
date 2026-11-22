@@ -166,7 +166,15 @@ async function verifyAdminAccess() {
 
   document.body.style.display = "block";
 }
+const { data: stats, error: statsError } =
+  await supabaseClient.functions.invoke("admin-stats");
 
+if (!statsError && stats) {
+  document.getElementById("totalCustomers").textContent =
+    stats.totalCustomers;
+} else {
+  console.error("Could not load customer statistics:", statsError);
+}
 verifyAdminAccess();
       </script>
   
