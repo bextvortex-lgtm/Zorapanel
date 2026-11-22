@@ -783,6 +783,56 @@ async function testAirtimeConnection() {
 
   alert(JSON.stringify(data));
 }
+  
+async function loadTransactionHistory() {
+  const message = document.getElementById("transactionMessage");
+  const list = document.getElementById("transactionList");
+
+  message.textContent = "Loading transactions...";
+  list.innerHTML = "";
+
+  const { data, error } = await supabaseClient
+    .from("transactions")
+    .select("service, provider, recipient, amount, status, created_at, provider_reference")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    message.textContent = "Could not load transactions. Please try again.";
+    console.error(error);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    message.textContent = "No transactions yet.";
+    return;
+  }
+
+  message.textContent = "Your recent transactions:";
+
+  data.forEach((transaction) => {
+    const card = document.createElement("div");
+    card.style.cssText =
+      "padding:12px;margin:10px 0;background:#f0f5ff;border-radius:10px;";
+
+    const details = document.createElement("p");
+    details.textContent =
+      `${transaction.service} - ${transaction.provider} | ` +
+      `${transaction.recipient} | ₦${Number(transaction.amount).toLocaleString("en-NG")}`;
+
+    const status = document.createElement("p");
+    status.textContent =
+      "Status: " + transaction.status.toUpperCase();
+
+    const date = document.createElement("p");
+    date.textContent =
+      "Date: " + new Date(transaction.created_at).toLocaleString("en-NG");
+
+    card.append(details, status, date);
+    list.appendChild(card);
+  });
+            }
+      
 
 </script>
 </body>
