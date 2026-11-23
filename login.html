@@ -802,7 +802,8 @@ function validateData() {
 function cancelData() {
   document.getElementById("dataMessage").innerHTML = "";
 }
-  function validateElectricity() {
+  
+async function validateElectricity() {
   const provider = document.getElementById("electricityProvider").value;
   const meterType = document.getElementById("meterType").value;
   const meterNumber = document.getElementById("meterNumber").value.trim();
@@ -824,10 +825,45 @@ function cancelData() {
     return;
   }
 
-  if (!Number.isFinite(amount) || amount < 500) {
-    message.textContent = "Minimum payment amount is ₦500.";
+  message.textContent = "Loading electricity payment settings...";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "customer-electricity-simulation",
+      { method: "GET" }
+    );
+
+  if (error || !data || !data.success) {
+    console.error(error, data);
+    message.textContent =
+      data?.error || "Could not load electricity payment settings.";
     return;
   }
+
+  const minAmount = Number(data.settings.min_amount);
+  const maxAmount = Number(data.settings.max_amount);
+  const serviceCharge = Number(data.settings.service_charge);
+
+  if (
+    !Number.isFinite(minAmount) ||
+    !Number.isFinite(maxAmount) ||
+    !Number.isFinite(serviceCharge)
+  ) {
+    message.textContent = "Electricity payment settings are invalid.";
+    return;
+  }
+
+  if (
+    !Number.isFinite(amount) ||
+    amount < minAmount ||
+    amount > maxAmount
+  ) {
+    message.textContent =
+      `Payment amount must be between ₦${minAmount.toLocaleString("en-NG")} and ₦${maxAmount.toLocaleString("en-NG")}.`;
+    return;
+  }
+
+  const totalAmount = amount + serviceCharge;
 
   message.innerHTML = `
     <div style="margin-top:15px;padding:15px;background:#f0f5ff;border-radius:10px;">
@@ -835,11 +871,13 @@ function cancelData() {
       <p><strong>Provider:</strong> ${provider}</p>
       <p><strong>Meter Type:</strong> ${meterType}</p>
       <p><strong>Meter Number:</strong> ${meterNumber}</p>
-      <p><strong>Amount:</strong> ₦${amount.toLocaleString("en-NG")}</p>
+      <p><strong>Electricity Amount:</strong> ₦${amount.toLocaleString("en-NG")}</p>
+      <p><strong>Service Charge:</strong> ₦${serviceCharge.toLocaleString("en-NG")}</p>
+      <p><strong>Total Payable:</strong> ₦${totalAmount.toLocaleString("en-NG")}</p>
 
       <button onclick="confirmElectricityPayment()">
-  Confirm Payment
-</button>
+        Confirm Payment
+      </button>
 
       <button onclick="cancelElectricity()" style="background:#777;margin-top:8px;">
         Cancel
@@ -847,6 +885,7 @@ function cancelData() {
     </div>
   `;
 }
+
 
 function cancelElectricity() {
   document.getElementById("electricityMessage").innerHTML = "";
