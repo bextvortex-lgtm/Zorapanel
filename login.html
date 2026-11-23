@@ -949,17 +949,20 @@ async function confirmElectricityPayment() {
     return;
   }
 
-  message.innerHTML = `
-    <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
-      <h3>Electricity Simulation Saved!</h3>
-      <p>Provider: ${data.provider}</p>
-      <p>Meter Type: ${data.meter_type}</p>
-      <p>Meter Number: ${data.meter_number}</p>
-      <p>Amount: ₦${Number(data.amount).toLocaleString("en-NG")}</p>
-      <p>Wallet Balance: ₦${Number(data.walletBalance).toLocaleString("en-NG")}</p>
-      <p><strong>No money was deducted. No electricity token was generated.</strong></p>
-    </div>
-  `;
+  
+message.innerHTML = `
+  <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
+    <h3>Electricity Simulation Saved!</h3>
+    <p>Provider: ${data.provider}</p>
+    <p>Meter Type: ${data.meter_type}</p>
+    <p>Meter Number: ${data.meter_number}</p>
+    <p>Electricity Amount: ₦${Number(data.electricityAmount).toLocaleString("en-NG")}</p>
+    <p>Service Charge: ₦${Number(data.serviceCharge).toLocaleString("en-NG")}</p>
+    <p><strong>Total Payable: ₦${Number(data.amount).toLocaleString("en-NG")}</strong></p>
+    <p>Wallet Balance: ₦${Number(data.walletBalance).toLocaleString("en-NG")}</p>
+    <p><strong>No money was deducted. No electricity token was generated.</strong></p>
+  </div>
+`;
 
   loadTransactionHistory();
 }
