@@ -974,6 +974,61 @@ function validateCable() {
 }
 
 
+async function loadCustomerCablePlans() {
+  const providerSelect = document.getElementById("cableProvider");
+  const planSelect = document.getElementById("cablePlan");
+  const message = document.getElementById("cableMessage");
+
+  if (!providerSelect || !planSelect) return;
+
+  planSelect.innerHTML = '<option value="">Loading packages...</option>';
+
+  const { data, error } =
+    await supabaseClient.functions.invoke("customer-cable-plans", {
+      method: "GET"
+    });
+
+  if (error || !data || !Array.isArray(data.plans)) {
+    planSelect.innerHTML = '<option value="">Could not load packages</option>';
+    console.error(error, data);
+    return;
+  }
+
+  function updateCablePackages() {
+    const provider = providerSelect.value;
+
+    planSelect.innerHTML = '<option value="">Choose Package</option>';
+
+    const providerPlans = data.plans.filter(
+      plan => plan.provider === provider
+    );
+
+    providerPlans.forEach(plan => {
+      const option = document.createElement("option");
+
+      option.value = plan.id;
+      option.textContent =
+        plan.plan_name + " - ₦" +
+        Number(plan.price).toLocaleString("en-NG");
+
+      option.dataset.planName = plan.plan_name;
+      option.dataset.price = plan.price;
+
+      planSelect.appendChild(option);
+    });
+
+    if (provider && providerPlans.length === 0) {
+      message.textContent = "No active packages available for this provider.";
+    } else {
+      message.textContent = "";
+    }
+  }
+
+  providerSelect.onchange = updateCablePackages;
+
+  updateCablePackages();
+  }
+  
 function cancelCable() {
   document.getElementById("cableMessage").innerHTML = "";
 }
