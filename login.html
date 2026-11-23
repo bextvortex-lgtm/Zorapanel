@@ -923,10 +923,12 @@ async function confirmElectricityPayment() {
 
   
   
+
 function validateCable() {
   const provider = document.getElementById("cableProvider").value;
   const number = document.getElementById("cableNumber").value.trim();
-  const selectedPlan = document.getElementById("cablePlan").value;
+  const planSelect = document.getElementById("cablePlan");
+  const selectedOption = planSelect.options[planSelect.selectedIndex];
   const message = document.getElementById("cableMessage");
 
   if (!provider) {
@@ -939,13 +941,18 @@ function validateCable() {
     return;
   }
 
-  if (!selectedPlan) {
+  if (!planSelect.value || !selectedOption.dataset.planName) {
     message.textContent = "Please select a subscription plan.";
     return;
   }
 
-  const [plan, price] = selectedPlan.split("|");
-  const amount = Number(price);
+  const plan = selectedOption.dataset.planName;
+  const amount = Number(selectedOption.dataset.price);
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    message.textContent = "Invalid package price. Please refresh and try again.";
+    return;
+  }
 
   message.innerHTML = `
     <div style="margin-top:15px;padding:15px;background:#f0f5ff;border-radius:10px;">
@@ -965,6 +972,7 @@ function validateCable() {
     </div>
   `;
 }
+
 
 function cancelCable() {
   document.getElementById("cableMessage").innerHTML = "";
