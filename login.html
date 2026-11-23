@@ -221,6 +221,7 @@ email: document.getElementById("loginEmail").value.trim(),
 password: document.getElementById("loginPassword").value
 });
 
+console.log("LOGIN ERROR:", error);
 message.textContent = error ? error.message : "Login successful!";
 });
 
