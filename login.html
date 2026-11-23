@@ -424,13 +424,14 @@ window.location.href = "index.html";
 <p id="airtimeMessage"></p>
       </div>
     `;
+
 } else if (service === "data") {
   serviceArea.innerHTML = `
     <div class="card">
       <h3>Buy Data</h3>
 
       <label>Select Network</label>
-      <select id="dataNetwork">
+      <select id="dataNetwork" onchange="loadCustomerDataPlans()">
         <option value="">Choose Network</option>
         <option value="MTN">MTN</option>
         <option value="Airtel">Airtel</option>
@@ -452,11 +453,7 @@ window.location.href = "index.html";
 
       <label>Select Data Plan</label>
       <select id="dataPlan">
-        <option value="">Choose Data Plan</option>
-        <option value="500MB">500MB</option>
-        <option value="1GB">1GB</option>
-        <option value="2GB">2GB</option>
-        <option value="5GB">5GB</option>
+        <option value="">Choose Network First</option>
       </select>
 
       <br><br>
@@ -468,6 +465,9 @@ window.location.href = "index.html";
       <p id="dataMessage"></p>
     </div>
   `;
+
+  loadCustomerDataPlans();
+
 } else if (service === "electricity") {
   serviceArea.innerHTML = `
     <div class="card">
