@@ -166,7 +166,59 @@ section h3 {
 </button>
   <p class="notice">Manage available services here.</p>
 </section>
+  
+<section>
+  <h3>Data Plan Management</h3>
 
+  <div id="adminDataPlanMessage">
+    Loading data plans...
+  </div>
+
+  <div class="card">
+    <h4>Add or Update Data Plan</h4>
+
+    <label>Network</label>
+    <select id="adminPlanNetwork">
+      <option value="">Choose Network</option>
+      <option value="MTN">MTN</option>
+      <option value="Airtel">Airtel</option>
+      <option value="Glo">Glo</option>
+      <option value="9mobile">9mobile</option>
+    </select>
+
+    <br><br>
+
+    <label>Plan Name</label>
+    <input
+      type="text"
+      id="adminPlanName"
+      placeholder="Example: 1GB - 30 Days"
+    >
+
+    <br><br>
+
+    <label>Selling Price (₦)</label>
+    <input
+      type="number"
+      id="adminPlanPrice"
+      placeholder="Enter selling price"
+      min="1"
+    >
+
+    <br><br>
+
+    <button onclick="saveAdminDataPlan()">
+      Save Data Plan
+    </button>
+  </div>
+
+  <div id="adminDataPlanList"></div>
+
+  <button onclick="loadAdminDataPlans()">
+    Refresh Data Plans
+  </button>
+</section>
+  
 </main>
   
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -471,6 +523,158 @@ async function loadAdminServices() {
     list.appendChild(card);
   });
   }
+
+
+async function loadAdminDataPlans() {
+  const message = document.getElementById("adminDataPlanMessage");
+  const list = document.getElementById("adminDataPlanList");
+
+  message.textContent = "Loading data plans...";
+  list.innerHTML = "";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke("admin-data-plans", {
+      method: "GET"
+    });
+
+  if (error || !data || !Array.isArray(data.plans)) {
+    message.textContent = "Could not load data plans.";
+    console.error(error, data);
+    return;
+  }
+
+  message.textContent = data.plans.length
+    ? "Manage your data plans below."
+    : "No data plans added yet.";
+
+  data.plans.forEach(plan => {
+    const card = document.createElement("div");
+
+    card.style.cssText = `
+      padding:16px;
+      margin:12px 0;
+      background:white;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+    `;
+
+    const title = document.createElement("h3");
+    title.textContent = plan.network + " - " + plan.plan_name;
+
+    const price = document.createElement("p");
+    price.textContent = "Selling Price: ₦" +
+      Number(plan.price).toLocaleString("en-NG");
+
+    const status = document.createElement("p");
+    status.textContent = plan.is_active ? "Active" : "Disabled";
+    status.style.fontWeight = "bold";
+    status.style.color = plan.is_active ? "#059669" : "#dc2626";
+
+    const editButton = document.createElement("button");
+    editButton.textContent = "Edit Price";
+    editButton.onclick = () => {
+      document.getElementById("adminPlanNetwork").value = plan.network;
+      document.getElementById("adminPlanName").value = plan.plan_name;
+      document.getElementById("adminPlanPrice").value = plan.price;
+      document.getElementById("adminPlanName").focus();
+    };
+
+    const toggleButton = document.createElement("button");
+    toggleButton.textContent = plan.is_active ? "Deactivate" : "Activate";
+    toggleButton.style.background = plan.is_active ? "#dc3545" : "#198754";
+
+    toggleButton.onclick = async () => {
+      toggleButton.disabled = true;
+
+      const { error } =
+        await supabaseClient.functions.invoke("admin-data-plans", {
+          method: "PATCH",
+          body: {
+            id: plan.id,
+            is_active: !plan.is_active
+          }
+        });
+
+      if (error) {
+        alert("Could not update plan status.");
+        console.error(error);
+        toggleButton.disabled = false;
+        return;
+      }
+
+      loadAdminDataPlans();
+    };
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.style.background = "#991b1b";
+
+    deleteButton.onclick = async () => {
+      if (!confirm("Are you sure you want to delete this data plan?")) {
+        return;
+      }
+
+      const { error } =
+        await supabaseClient.functions.invoke("admin-data-plans", {
+          method: "DELETE",
+          body: { id: plan.id }
+        });
+
+      if (error) {
+        alert("Could not delete data plan.");
+        console.error(error);
+        return;
+      }
+
+      loadAdminDataPlans();
+    };
+
+    card.append(title, price, status, editButton, toggleButton, deleteButton);
+    list.appendChild(card);
+  });
+}
+
+async function saveAdminDataPlan() {
+  const message = document.getElementById("adminDataPlanMessage");
+
+  const network =
+    document.getElementById("adminPlanNetwork").value;
+
+  const plan_name =
+    document.getElementById("adminPlanName").value.trim();
+
+  const price =
+    Number(document.getElementById("adminPlanPrice").value);
+
+  if (!network || !plan_name || !Number.isFinite(price) || price <= 0) {
+    message.textContent = "Please enter a network, plan name and valid price.";
+    return;
+  }
+
+  message.textContent = "Saving data plan...";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke("admin-data-plans", {
+      method: "POST",
+      body: { network, plan_name, price }
+    });
+
+  if (error || !data || !data.success) {
+    console.error(error, data);
+    message.textContent =
+      data?.error || "Could not save data plan.";
+    return;
+  }
+
+  message.textContent = "Data plan saved successfully!";
+
+  document.getElementById("adminPlanNetwork").value = "";
+  document.getElementById("adminPlanName").value = "";
+  document.getElementById("adminPlanPrice").value = "";
+
+  loadAdminDataPlans();
+        }
+  
   
 async function verifyAdminAccess() {
   document.body.style.display = "none";
