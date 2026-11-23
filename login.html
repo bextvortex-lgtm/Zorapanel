@@ -1000,66 +1000,66 @@ async function confirmCablePayment() {
 }
   
 
+
 async function confirmDataPurchase() {
   const network = document.getElementById("dataNetwork").value;
   const phone = document.getElementById("dataPhone").value.trim();
-  const plan = document.getElementById("dataPlan").value;
+  const planSelect = document.getElementById("dataPlan");
+  const planId = planSelect.value;
   const message = document.getElementById("dataMessage");
 
-  const planPrices = {
-    "500MB": 150,
-    "1GB": 300,
-    "2GB": 600,
-    "5GB": 1500
-  };
-
-  const amount = planPrices[plan];
-
-  if (!network || !phone || !plan || !amount) {
+  if (!network || !phone || !planId) {
     message.textContent = "Please complete all fields.";
     return;
   }
 
+  const confirmButton = message.querySelector("button");
+
+  if (confirmButton) {
+    confirmButton.disabled = true;
+    confirmButton.textContent = "Processing...";
+  }
+
   message.textContent = "Saving simulation...";
 
-  const { data: userData, error: userError } =
-    await supabaseClient.auth.getUser();
+  const idempotencyKey = crypto.randomUUID();
 
-  if (userError || !userData.user) {
-    message.textContent = "Please log in again.";
-    return;
-  }
-
-  const { error } = await supabaseClient
-    .from("transactions")
-    .insert({
-      user_id: userData.user.id,
-      service: "Data Simulation",
-      provider: network,
-      recipient: phone,
-      amount: amount,
-      status: "simulation"
+  const { data, error } =
+    await supabaseClient.functions.invoke("customer-data-simulation", {
+      method: "POST",
+      body: {
+        plan_id: planId,
+        network: network,
+        phone: phone,
+        idempotency_key: idempotencyKey
+      }
     });
 
-  if (error) {
-    console.error(error);
-    message.textContent = "Could not save transaction: " + error.message;
+  if (error || !data || !data.success) {
+    console.error(error, data);
+
+    message.textContent =
+      data?.error || "Could not save data simulation. Please try again.";
+
     return;
   }
+
+  const amount = Number(data.transaction.amount);
 
   message.innerHTML = `
     <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
       <h3>Data Simulation Saved!</h3>
       <p>Network: ${network}</p>
       <p>Phone: ${phone}</p>
-      <p>Data Plan: ${plan}</p>
+      <p>Data Plan: ${data.plan_name || "Selected Plan"}</p>
       <p>Amount: ₦${amount.toLocaleString("en-NG")}</p>
       <p><strong>No money was deducted. No data was delivered.</strong></p>
     </div>
   `;
 
   loadTransactionHistory();
-  }
+}
+
     
 async function testAirtimeConnection() {
   const { data, error } =
