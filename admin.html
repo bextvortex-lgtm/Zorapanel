@@ -880,6 +880,92 @@ async function loadAdminCablePlans() {
 }
 
 
+async function loadAdminElectricitySettings() {
+  const message = document.getElementById("adminElectricityMessage");
+
+  message.textContent = "Loading electricity settings...";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "admin-electricity-settings",
+      { method: "GET" }
+    );
+
+  if (error || !data || !data.success) {
+    message.textContent =
+      data?.error || "Could not load electricity settings.";
+    console.error(error, data);
+    return;
+  }
+
+  const settings = data.settings;
+
+  document.getElementById("adminElectricityMin").value =
+    settings.min_amount;
+
+  document.getElementById("adminElectricityMax").value =
+    settings.max_amount;
+
+  document.getElementById("adminElectricityCharge").value =
+    settings.service_charge;
+
+  message.textContent = "Electricity settings loaded successfully.";
+}
+
+async function saveAdminElectricitySettings() {
+  const message = document.getElementById("adminElectricityMessage");
+
+  const min_amount = Number(
+    document.getElementById("adminElectricityMin").value
+  );
+
+  const max_amount = Number(
+    document.getElementById("adminElectricityMax").value
+  );
+
+  const service_charge = Number(
+    document.getElementById("adminElectricityCharge").value
+  );
+
+  if (
+    !Number.isFinite(min_amount) ||
+    min_amount < 1 ||
+    !Number.isFinite(max_amount) ||
+    max_amount < min_amount ||
+    !Number.isFinite(service_charge) ||
+    service_charge < 0
+  ) {
+    message.textContent = "Please enter valid electricity settings.";
+    return;
+  }
+
+  message.textContent = "Saving electricity settings...";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "admin-electricity-settings",
+      {
+        method: "POST",
+        body: {
+          min_amount,
+          max_amount,
+          service_charge
+        }
+      }
+    );
+
+  if (error || !data || !data.success) {
+    console.error(error, data);
+
+    message.textContent =
+      data?.error || "Could not save electricity settings.";
+
+    return;
+  }
+
+  message.textContent = "Electricity settings saved successfully!";
+}
+
 async function saveAdminCablePlan() {
   const message = document.getElementById("adminCablePlanMessage");
 
@@ -957,6 +1043,7 @@ if (error || !data || !data.isAdmin) {
   loadAdminServices();
   loadAdminDataPlans();
   loadAdminCablePlans();
+  loadAdminElectricitySettings();
  
   // Load customer statistics
   const { data: stats, error: statsError } =
