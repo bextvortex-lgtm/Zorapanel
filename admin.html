@@ -261,6 +261,59 @@ status.style.cssText = `
   });
   }
     
+async function loadAdminCustomers() {
+  const message = document.getElementById("adminCustomerMessage");
+  const list = document.getElementById("adminCustomerList");
+
+  message.textContent = "Loading customers...";
+  list.innerHTML = "";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke("admin-customers");
+
+  if (error || !data || !data.customers) {
+    message.textContent = "Could not load customers.";
+    console.error("Customer loading error:", error, data);
+    return;
+  }
+
+  if (data.customers.length === 0) {
+    message.textContent = "No registered customers found.";
+    return;
+  }
+
+  message.textContent =
+    "Showing " + data.customers.length + " registered customers.";
+
+  data.customers.forEach((customer) => {
+    const card = document.createElement("div");
+
+    card.style.cssText = `
+      padding:16px;
+      margin:12px 0;
+      background:white;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.05);
+    `;
+
+    const username = document.createElement("h3");
+    username.textContent = "@" + customer.username;
+    username.style.marginTop = "0";
+
+    const name = document.createElement("p");
+    name.textContent =
+      "Full Name: " + (customer.full_name || "Not provided");
+
+    const phone = document.createElement("p");
+    phone.textContent =
+      "Phone: " + (customer.phone || "Not provided");
+
+    card.append(username, name, phone);
+    list.appendChild(card);
+  });
+  }
+  
 
 async function verifyAdminAccess() {
   document.body.style.display = "none";
@@ -293,6 +346,7 @@ if (error || !data || !data.isAdmin) {
   document.body.style.display = "block";
 
   loadAdminTransactions();
+  loadAdminCustomers();
   
   // Load customer statistics
   const { data: stats, error: statsError } =
