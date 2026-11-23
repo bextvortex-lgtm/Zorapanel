@@ -156,12 +156,17 @@ async function verifyAdminAccess() {
   const { data, error } =
     await supabaseClient.functions.invoke("admin-check");
 
-  if (error || !data || !data.isAdmin) {
-    document.body.innerHTML =
-      "<h2>Access denied. Administrator only.</h2>";
-    document.body.style.display = "block";
-    return;
-  }
+if (error || !data || !data.isAdmin) {
+  document.body.innerHTML =
+    "<h2>Admin verification failed</h2>" +
+    "<p>" +
+    (data?.message || error?.message || "Unknown error") +
+    "</p>";
+
+  document.body.style.display = "block";
+  console.error("Admin verification:", { data, error });
+  return;
+}
 
   document.body.style.display = "block";
 
