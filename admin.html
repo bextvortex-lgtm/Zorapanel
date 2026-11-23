@@ -177,6 +177,11 @@ if (error || !data || !data.isAdmin) {
   if (!statsError && stats) {
     document.getElementById("totalCustomers").textContent =
       stats.totalCustomers;
+    document.getElementById("totalWalletBalance").textContent =
+  "₦" + Number(stats.totalWalletBalance).toLocaleString("en-NG", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
   } else {
     document.getElementById("totalCustomers").textContent =
       "Error loading";
