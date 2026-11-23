@@ -577,6 +577,67 @@ window.location.href = "index.html";
   serviceArea.scrollIntoView({ behavior: "smooth" });
 }
   
+async function loadCustomerDataPlans() {
+  const network = document.getElementById("dataNetwork");
+  const planSelect = document.getElementById("dataPlan");
+  const message = document.getElementById("dataMessage");
+
+  if (!network || !planSelect) return;
+
+  planSelect.innerHTML = "";
+
+  if (!network.value) {
+    planSelect.innerHTML =
+      '<option value="">Choose Network First</option>';
+    return;
+  }
+
+  planSelect.innerHTML =
+    '<option value="">Loading plans...</option>';
+
+  const { data, error } =
+    await supabaseClient.functions.invoke("customer-data-plans", {
+      method: "GET"
+    });
+
+  if (error || !data || !Array.isArray(data.plans)) {
+    planSelect.innerHTML =
+      '<option value="">Could not load plans</option>';
+
+    if (message) {
+      message.textContent = "Could not load data plans. Please try again.";
+    }
+
+    console.error(error, data);
+    return;
+  }
+
+  const availablePlans = data.plans.filter(
+    plan => plan.network === network.value
+  );
+
+  planSelect.innerHTML =
+    '<option value="">Choose Data Plan</option>';
+
+  availablePlans.forEach(plan => {
+    const option = document.createElement("option");
+
+    option.value = plan.id;
+    option.dataset.planName = plan.plan_name;
+    option.textContent =
+      plan.plan_name + " - ₦" +
+      Number(plan.price).toLocaleString("en-NG");
+
+    planSelect.appendChild(option);
+  });
+
+  if (availablePlans.length === 0 && message) {
+    message.textContent = "No active plans available for this network.";
+  } else if (message) {
+    message.textContent = "";
+  }
+}
+
 function validateAirtime() {
   const network = document.getElementById("airtimeNetwork").value;
   const phone = document.getElementById("airtimePhone").value.trim();
@@ -694,14 +755,14 @@ async function confirmAirtimePurchase() {
   loadTransactionHistory();
 }
 
-  function cancelAirtime() {
-  const message = document.getElementById("airtimeMessage");
-  message.innerHTML = "";
-  }
-  function validateData() {
+  
+function validateData() {
   const network = document.getElementById("dataNetwork").value;
   const phone = document.getElementById("dataPhone").value.trim();
-  const plan = document.getElementById("dataPlan").value;
+  const planSelect = document.getElementById("dataPlan");
+  const planId = planSelect.value;
+  const selectedOption = planSelect.options[planSelect.selectedIndex];
+  const planName = selectedOption?.dataset.planName;
   const message = document.getElementById("dataMessage");
 
   if (!network) {
@@ -714,8 +775,8 @@ async function confirmAirtimePurchase() {
     return;
   }
 
-  if (!plan) {
-    message.textContent = "Please select a data plan.";
+  if (!planId || !planName) {
+    message.textContent = "Please select a valid data plan.";
     return;
   }
 
@@ -724,11 +785,11 @@ async function confirmAirtimePurchase() {
       <h3>Confirm Data Purchase</h3>
       <p><strong>Network:</strong> ${network}</p>
       <p><strong>Phone:</strong> ${phone}</p>
-      <p><strong>Data Plan:</strong> ${plan}</p>
+      <p><strong>Data Plan:</strong> ${planName}</p>
 
       <button onclick="confirmDataPurchase()">
-  Confirm Purchase
-</button>
+        Confirm Purchase
+      </button>
 
       <button onclick="cancelData()" style="background:#777;margin-top:8px;">
         Cancel
@@ -736,6 +797,7 @@ async function confirmAirtimePurchase() {
     </div>
   `;
 }
+
 
 function cancelData() {
   document.getElementById("dataMessage").innerHTML = "";
