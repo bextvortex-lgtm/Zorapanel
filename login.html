@@ -726,9 +726,9 @@ async function confirmAirtimePurchase() {
       <p><strong>Phone:</strong> ${phone}</p>
       <p><strong>Data Plan:</strong> ${plan}</p>
 
-      <button onclick="alert('Actual purchases will be enabled after VTU API integration.')">
-        Confirm Purchase
-      </button>
+      <button onclick="confirmDataPurchase()">
+  Confirm Purchase
+</button>
 
       <button onclick="cancelData()" style="background:#777;margin-top:8px;">
         Cancel
@@ -938,6 +938,67 @@ async function confirmCablePayment() {
 }
   
 
+async function confirmDataPurchase() {
+  const network = document.getElementById("dataNetwork").value;
+  const phone = document.getElementById("dataPhone").value.trim();
+  const plan = document.getElementById("dataPlan").value;
+  const message = document.getElementById("dataMessage");
+
+  const planPrices = {
+    "500MB": 150,
+    "1GB": 300,
+    "2GB": 600,
+    "5GB": 1500
+  };
+
+  const amount = planPrices[plan];
+
+  if (!network || !phone || !plan || !amount) {
+    message.textContent = "Please complete all fields.";
+    return;
+  }
+
+  message.textContent = "Saving simulation...";
+
+  const { data: userData, error: userError } =
+    await supabaseClient.auth.getUser();
+
+  if (userError || !userData.user) {
+    message.textContent = "Please log in again.";
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("transactions")
+    .insert({
+      user_id: userData.user.id,
+      service: "Data Simulation",
+      provider: network,
+      recipient: phone,
+      amount: amount,
+      status: "simulation"
+    });
+
+  if (error) {
+    console.error(error);
+    message.textContent = "Could not save transaction: " + error.message;
+    return;
+  }
+
+  message.innerHTML = `
+    <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
+      <h3>Data Simulation Saved!</h3>
+      <p>Network: ${network}</p>
+      <p>Phone: ${phone}</p>
+      <p>Data Plan: ${plan}</p>
+      <p>Amount: ₦${amount.toLocaleString("en-NG")}</p>
+      <p><strong>No money was deducted. No data was delivered.</strong></p>
+    </div>
+  `;
+
+  loadTransactionHistory();
+  }
+    
 async function testAirtimeConnection() {
   const { data, error } =
     await supabaseClient.functions.invoke(
