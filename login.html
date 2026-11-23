@@ -215,6 +215,7 @@ message.textContent = error ? error.message :
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
 e.preventDefault();
 message.textContent = "Logging in...";
+  alert("Login button is working");
 
 const { error } = await supabaseClient.auth.signInWithPassword({
 email: document.getElementById("loginEmail").value.trim(),
