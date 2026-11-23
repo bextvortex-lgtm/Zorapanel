@@ -155,6 +155,15 @@ section h3 {
 
 <section>
   <h3>Service Management</h3>
+  <div id="adminServiceMessage">
+  Loading services...
+</div>
+
+<div id="adminServiceList"></div>
+
+<button onclick="loadAdminServices()">
+  Refresh Services
+</button>
   <p class="notice">Manage available services here.</p>
 </section>
 
@@ -391,6 +400,78 @@ async function loadAdminWallets() {
   });
 }
 
+async function loadAdminServices() {
+  const message = document.getElementById("adminServiceMessage");
+  const list = document.getElementById("adminServiceList");
+
+  message.textContent = "Loading services...";
+  list.innerHTML = "";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke("admin-services", {
+      method: "GET"
+    });
+
+  if (error || !data || !data.services) {
+    message.textContent = "Could not load services.";
+    console.error("Service loading error:", error, data);
+    return;
+  }
+
+  message.textContent = "Manage your available services.";
+
+  data.services.forEach((service) => {
+    const card = document.createElement("div");
+
+    card.style.cssText = `
+      padding:16px;
+      margin:12px 0;
+      background:white;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+    `;
+
+    const name = document.createElement("h3");
+    name.textContent = service.service_name;
+
+    const status = document.createElement("p");
+    status.textContent = service.is_active ? "Active" : "Disabled";
+    status.style.fontWeight = "bold";
+    status.style.color = service.is_active ? "#059669" : "#dc2626";
+
+    const button = document.createElement("button");
+    button.textContent = service.is_active ? "Deactivate" : "Activate";
+    button.style.background = service.is_active ? "#dc3545" : "#198754";
+
+    button.onclick = async () => {
+      button.disabled = true;
+      button.textContent = "Updating...";
+
+      const { data: result, error: updateError } =
+        await supabaseClient.functions.invoke("admin-services", {
+          method: "POST",
+          body: {
+            service_key: service.service_key,
+            is_active: !service.is_active
+          }
+        });
+
+      if (updateError || !result || !result.success) {
+        console.error("Service update error:", updateError, result);
+        message.textContent = "Could not update service. Please try again.";
+        button.disabled = false;
+        button.textContent = service.is_active ? "Deactivate" : "Activate";
+        return;
+      }
+
+      loadAdminServices();
+    };
+
+    card.append(name, status, button);
+    list.appendChild(card);
+  });
+  }
+  
 async function verifyAdminAccess() {
   document.body.style.display = "none";
 
@@ -424,7 +505,8 @@ if (error || !data || !data.isAdmin) {
   loadAdminTransactions();
   loadAdminCustomers();
   loadAdminWallets();
-  
+  loadAdminServices();
+ 
   // Load customer statistics
   const { data: stats, error: statsError } =
     await supabaseClient.functions.invoke("admin-stats");
