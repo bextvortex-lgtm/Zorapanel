@@ -209,9 +209,29 @@ async function loadAdminTransactions() {
     amount.textContent =
       "₦" + Number(transaction.amount).toLocaleString("en-NG");
 
-    const status = document.createElement("p");
-    status.textContent =
-      "Status: " + transaction.status.toUpperCase();
+    const status = document.createElement("span");
+
+status.textContent = transaction.status.toUpperCase();
+
+const statusColors = {
+  successful: ["#d1fae5", "#065f46"],
+  pending: ["#fef3c7", "#92400e"],
+  failed: ["#fee2e2", "#991b1b"],
+  simulation: ["#e0e7ff", "#3730a3"]
+};
+
+const colors = statusColors[transaction.status] ||
+  ["#f3f4f6", "#374151"];
+
+status.style.cssText = `
+  display:inline-block;
+  padding:6px 12px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:bold;
+  background:${colors[0]};
+  color:${colors[1]};
+`;
 
     const date = document.createElement("small");
     date.textContent =
