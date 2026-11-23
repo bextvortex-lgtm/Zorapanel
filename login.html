@@ -974,56 +974,80 @@ function cancelCable() {
 }
   
 
+
 async function confirmCablePayment() {
   const provider = document.getElementById("cableProvider").value;
   const number = document.getElementById("cableNumber").value.trim();
   const selectedPlan = document.getElementById("cablePlan").value;
   const message = document.getElementById("cableMessage");
 
-  const [plan, price] = selectedPlan.split("|");
-  const amount = Number(price);
+  const [plan] = selectedPlan.split("|");
 
-  message.textContent = "Saving simulation...";
+  const confirmButton = message.querySelector("button");
 
-  const { data: userData, error: userError } =
-    await supabaseClient.auth.getUser();
-
-  if (userError || !userData.user) {
-    message.textContent = "Please log in again.";
-    return;
+  if (confirmButton) {
+    confirmButton.disabled = true;
+    confirmButton.textContent = "Processing...";
   }
 
-  const { error } = await supabaseClient
-    .from("transactions")
-    .insert({
-      user_id: userData.user.id,
-      service: "Cable TV Simulation",
-      provider: provider + " - " + plan,
-      recipient: number,
-      amount: amount,
-      status: "simulation"
-    });
+  message.textContent = "Saving Cable TV simulation...";
 
-  if (error) {
-    console.error(error);
-    message.textContent = "Error: " + error.message + " | Code: " + error.code;
+  const idempotencyKey = crypto.randomUUID();
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "customer-cable-simulation",
+      {
+        method: "POST",
+        body: {
+          provider,
+          number,
+          plan,
+          idempotency_key: idempotencyKey
+        }
+      }
+    );
+
+  if (error || !data || !data.success) {
+    console.error(error, data);
+
+    let errorMessage = data?.details || data?.error;
+
+    if (error?.context) {
+      try {
+        const responseBody = await error.context.json();
+
+        errorMessage =
+          responseBody.details ||
+          responseBody.error ||
+          errorMessage;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    message.textContent =
+      errorMessage ||
+      error?.message ||
+      "Could not save Cable TV simulation. Please try again.";
+
     return;
   }
 
   message.innerHTML = `
     <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
       <h3>Cable TV Simulation Saved!</h3>
-      <p>Provider: ${provider}</p>
-      <p>Package: ${plan}</p>
-      <p>Smartcard Number: ${number}</p>
-      <p>Amount: ₦${amount.toLocaleString("en-NG")}</p>
+      <p>Provider: ${data.provider}</p>
+      <p>Package: ${data.plan}</p>
+      <p>Smartcard Number: ${data.number}</p>
+      <p>Amount: ₦${Number(data.amount).toLocaleString("en-NG")}</p>
+      <p>Wallet Balance: ₦${Number(data.walletBalance).toLocaleString("en-NG")}</p>
       <p><strong>No money was deducted. No subscription was activated.</strong></p>
     </div>
   `;
 
   loadTransactionHistory();
 }
-  
 
 
 async function confirmDataPurchase() {
