@@ -141,6 +141,15 @@ section h3 {
 
 <section>
   <h3>Wallet Management</h3>
+  <div id="adminWalletMessage">
+  Loading wallets...
+</div>
+
+<div id="adminWalletList"></div>
+
+<button onclick="loadAdminWallets()">
+  Refresh Wallets
+</button>
   <p class="notice">Wallet monitoring will appear here.</p>
 </section>
 
@@ -315,6 +324,73 @@ async function loadAdminCustomers() {
   }
   
 
+async function loadAdminWallets() {
+  const message = document.getElementById("adminWalletMessage");
+  const list = document.getElementById("adminWalletList");
+
+  message.textContent = "Loading wallets...";
+  list.innerHTML = "";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke("admin-wallets");
+
+  if (error || !data || !data.wallets) {
+    message.textContent = "Could not load wallets.";
+    console.error("Wallet loading error:", error, data);
+    return;
+  }
+
+  if (data.wallets.length === 0) {
+    message.textContent = "No customer wallets found.";
+    return;
+  }
+
+  message.textContent =
+    "Showing " + data.wallets.length + " customer wallets.";
+
+  data.wallets.forEach((wallet) => {
+    const card = document.createElement("div");
+
+    card.style.cssText = `
+      padding:16px;
+      margin:12px 0;
+      background:white;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.05);
+    `;
+
+    const username = document.createElement("h3");
+    username.textContent = "@" + wallet.username;
+    username.style.marginTop = "0";
+
+    const name = document.createElement("p");
+    name.textContent =
+      "Full Name: " + wallet.customerName;
+
+    const phone = document.createElement("p");
+    phone.textContent =
+      "Phone: " + wallet.phone;
+
+    const balance = document.createElement("h2");
+    balance.textContent =
+      "₦" + Number(wallet.balance).toLocaleString("en-NG", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+    balance.style.color = "#0f766e";
+
+    const updated = document.createElement("small");
+    updated.textContent =
+      "Last Updated: " +
+      new Date(wallet.updated_at).toLocaleString("en-NG");
+
+    card.append(username, name, phone, balance, updated);
+    list.appendChild(card);
+  });
+}
+
 async function verifyAdminAccess() {
   document.body.style.display = "none";
 
@@ -347,6 +423,7 @@ if (error || !data || !data.isAdmin) {
 
   loadAdminTransactions();
   loadAdminCustomers();
+  loadAdminWallets();
   
   // Load customer statistics
   const { data: stats, error: statsError } =
