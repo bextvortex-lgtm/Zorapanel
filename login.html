@@ -1042,10 +1042,8 @@ function cancelCable() {
 async function confirmCablePayment() {
   const provider = document.getElementById("cableProvider").value;
   const number = document.getElementById("cableNumber").value.trim();
-  const selectedPlan = document.getElementById("cablePlan").value;
+  const planId = document.getElementById("cablePlan").value;
   const message = document.getElementById("cableMessage");
-
-  const [plan] = selectedPlan.split("|");
 
   const confirmButton = message.querySelector("button");
 
@@ -1064,9 +1062,10 @@ async function confirmCablePayment() {
       {
         method: "POST",
         body: {
-          provider,
-          number,
-          plan,
+    
+       provider,
+       number,
+       plan_id: planId,
           idempotency_key: idempotencyKey
         }
       }
@@ -1102,7 +1101,7 @@ async function confirmCablePayment() {
     <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
       <h3>Cable TV Simulation Saved!</h3>
       <p>Provider: ${data.provider}</p>
-      <p>Package: ${data.plan}</p>
+      <p>Package: ${data.planName}</p>
       <p>Smartcard Number: ${data.number}</p>
       <p>Amount: ₦${Number(data.amount).toLocaleString("en-NG")}</p>
       <p>Wallet Balance: ₦${Number(data.walletBalance).toLocaleString("en-NG")}</p>
