@@ -118,6 +118,15 @@ section h3 {
 
 <section>
   <h3>Transaction Management</h3>
+  <div id="adminTransactionMessage">
+  Loading transactions...
+</div>
+
+<div id="adminTransactionList"></div>
+
+<button onclick="loadAdminTransactions()">
+  Refresh Transactions
+</button>
   <p class="notice">Customer transactions will appear here.</p>
 </section>
 
@@ -140,6 +149,89 @@ const supabaseClient = window.supabase.createClient(
   "https://hwdkzubgishdpqwetlck.supabase.co",
 "sb_publishable_iEaC5F6rKj-D-1PNHbWPMQ_JWCf4-m5");
 
+async function loadAdminTransactions() {
+  const message = document.getElementById("adminTransactionMessage");
+  const list = document.getElementById("adminTransactionList");
+
+  message.textContent = "Loading transactions...";
+  list.innerHTML = "";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke("admin-transactions");
+
+  if (error || !data || !data.transactions) {
+    message.textContent = "Could not load transactions.";
+    console.error("Transaction loading error:", error, data);
+    return;
+  }
+
+  if (data.transactions.length === 0) {
+    message.textContent = "No transactions found.";
+    return;
+  }
+
+  message.textContent =
+    "Showing " + data.transactions.length + " recent transactions.";
+
+  data.transactions.forEach((transaction) => {
+    const card = document.createElement("div");
+
+    card.style.cssText = `
+      padding:16px;
+      margin:12px 0;
+      background:white;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.05);
+    `;
+
+    const heading = document.createElement("h3");
+    heading.textContent = transaction.service;
+    heading.style.marginTop = "0";
+
+    const details = document.createElement("p");
+    details.textContent =
+      "Customer: " + transaction.username;
+
+    const customerName = document.createElement("p");
+    customerName.textContent =
+      "Full Name: " + transaction.customerName;
+
+    const provider = document.createElement("p");
+    provider.textContent =
+      "Provider: " + transaction.provider;
+
+    const recipient = document.createElement("p");
+    recipient.textContent =
+      "Recipient: " + transaction.recipient;
+
+    const amount = document.createElement("h3");
+    amount.textContent =
+      "₦" + Number(transaction.amount).toLocaleString("en-NG");
+
+    const status = document.createElement("p");
+    status.textContent =
+      "Status: " + transaction.status.toUpperCase();
+
+    const date = document.createElement("small");
+    date.textContent =
+      new Date(transaction.created_at).toLocaleString("en-NG");
+
+    card.append(
+      heading,
+      details,
+      customerName,
+      provider,
+      recipient,
+      amount,
+      status,
+      date
+    );
+
+    list.appendChild(card);
+  });
+  }
+    
 
 async function verifyAdminAccess() {
   document.body.style.display = "none";
@@ -150,6 +242,7 @@ async function verifyAdminAccess() {
   if (!sessionData.session) {
     document.body.innerHTML = "<h2>Please log in first.</h2>";
     document.body.style.display = "block";
+    
     return;
   }
 
@@ -170,6 +263,8 @@ if (error || !data || !data.isAdmin) {
 
   document.body.style.display = "block";
 
+  loadAdminTransactions();
+  
   // Load customer statistics
   const { data: stats, error: statsError } =
     await supabaseClient.functions.invoke("admin-stats");
