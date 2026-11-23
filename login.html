@@ -1036,13 +1036,13 @@ async function confirmDataPurchase() {
     });
 
   if (error || !data || !data.success) {
-    console.error(error, data);
+  console.error(error, data);
 
-    message.textContent =
-      data?.error || "Could not save data simulation. Please try again.";
+  message.textContent =
+    data?.error || "Could not save data simulation. Please try again.";
 
-    return;
-  }
+  return;
+}
 
   const amount = Number(data.transaction.amount);
 
