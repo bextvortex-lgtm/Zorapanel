@@ -184,6 +184,8 @@ if (error || !data || !data.isAdmin) {
   });
     document.getElementById("totalTransactions").textContent =
   stats.totalTransactions;
+    document.getElementById("successfulTransactions").textContent =
+  stats.successfulTransactions;
   } else {
     document.getElementById("totalCustomers").textContent =
       "Error loading";
