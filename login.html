@@ -678,82 +678,79 @@ function validateAirtime() {
 }
 
 
+
 async function confirmAirtimePurchase() {
   const network = document.getElementById("airtimeNetwork").value.toLowerCase();
   const phone = document.getElementById("airtimePhone").value.trim();
   const amount = Number(document.getElementById("airtimeAmount").value);
   const message = document.getElementById("airtimeMessage");
 
-  const serviceID = network.includes("9mobile") ? "etisalat" :
-                    network.includes("etisalat") ? "etisalat" : network;
+  const serviceID = network.includes("9mobile") ? "etisalat" : network;
 
-  message.textContent = "Checking airtime order...";
+  const confirmButton = message.querySelector("button");
+
+  if (confirmButton) {
+    confirmButton.disabled = true;
+    confirmButton.textContent = "Processing...";
+  }
+
+  message.textContent = "Saving airtime simulation...";
+
+  const idempotencyKey = crypto.randomUUID();
 
   const { data, error } =
     await supabaseClient.functions.invoke(
-      "gsubz-airtime-purchase",
+      "customer-airtime-simulation",
       {
+        method: "POST",
         body: {
           serviceID,
           phone,
-          amount
+          amount,
+          idempotency_key: idempotencyKey
         }
       }
     );
 
-  if (error) {
-    message.textContent = "Error: " + error.message;
-    return;
-  }
+  if (error || !data || !data.success) {
+    console.error(error, data);
 
-  if (!data.success) {
-    message.textContent = data.error || "Unable to process request.";
-    return;
-  }
+    let errorMessage = data?.details || data?.error;
 
-  if (!data.sufficientBalance) {
-    message.textContent = "Insufficient wallet balance.";
-    return;
-  }
+    if (error?.context) {
+      try {
+        const responseBody = await error.context.json();
+        errorMessage =
+          responseBody.details ||
+          responseBody.error ||
+          errorMessage;
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
-  const { data: userData, error: userError } =
-    await supabaseClient.auth.getUser();
+    message.textContent =
+      errorMessage ||
+      error?.message ||
+      "Could not save airtime simulation. Please try again.";
 
-  if (userError || !userData.user) {
-    message.textContent = "Please log in again.";
-    return;
-  }
-
-  const { error: saveError } = await supabaseClient
-    .from("transactions")
-    .insert({
-      user_id: userData.user.id,
-      service: "Airtime Simulation",
-      provider: data.network,
-      recipient: data.phone,
-      amount: data.amount,
-      status: "simulation"
-    });
-
-  if (saveError) {
-    console.error(saveError);
-    message.textContent = "Simulation worked, but transaction history could not be saved.";
     return;
   }
 
   message.innerHTML = `
     <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
-      <h3>Simulation Successful!</h3>
-      <p>Network: ${data.network}</p>
-      <p>Phone: ${data.phone}</p>
-      <p>Amount: ₦${data.amount}</p>
-      <p>Wallet balance: ₦${data.walletBalance}</p>
+      <h3>Airtime Simulation Saved!</h3>
+      <p>Network: ${data.network || network}</p>
+      <p>Phone: ${data.phone || phone}</p>
+      <p>Amount: ₦${Number(data.amount ?? data.transaction.amount).toLocaleString("en-NG")}</p>
+      <p>Wallet balance: ₦${Number(data.walletBalance ?? 0).toLocaleString("en-NG")}</p>
       <p><strong>No money was deducted. No airtime was sent.</strong></p>
     </div>
   `;
 
   loadTransactionHistory();
 }
+
 
   
 function validateData() {
