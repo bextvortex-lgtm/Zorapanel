@@ -758,7 +758,6 @@ async function validateAirtime() {
 }
 
 
-
 async function confirmAirtimePurchase() {
   const network = document.getElementById("airtimeNetwork").value.toLowerCase();
   const phone = document.getElementById("airtimePhone").value.trim();
@@ -800,6 +799,7 @@ async function confirmAirtimePurchase() {
     if (error?.context) {
       try {
         const responseBody = await error.context.json();
+
         errorMessage =
           responseBody.details ||
           responseBody.error ||
@@ -817,13 +817,31 @@ async function confirmAirtimePurchase() {
     return;
   }
 
+  const airtimeAmount = Number(data.airtimeAmount);
+  const serviceCharge = Number(data.serviceCharge);
+  const discount = Number(data.discount);
+  const totalPayable = Number(data.totalPayable);
+  const walletBalance = Number(data.walletBalance);
+
   message.innerHTML = `
     <div style="padding:15px;background:#e8f5e9;border-radius:10px;">
       <h3>Airtime Simulation Saved!</h3>
-      <p>Network: ${data.network || network}</p>
-      <p>Phone: ${data.phone || phone}</p>
-      <p>Amount: ₦${Number(data.amount ?? data.transaction.amount).toLocaleString("en-NG")}</p>
-      <p>Wallet balance: ₦${Number(data.walletBalance ?? 0).toLocaleString("en-NG")}</p>
+
+      <p><strong>Network:</strong> ${data.network}</p>
+      <p><strong>Phone:</strong> ${data.phone}</p>
+
+      <p>Airtime Value: ₦${airtimeAmount.toLocaleString("en-NG")}</p>
+
+      <p>Service Charge: ₦${serviceCharge.toLocaleString("en-NG")}</p>
+
+      <p>Discount: -₦${discount.toLocaleString("en-NG")}</p>
+
+      <hr>
+
+      <h3>Total Payable: ₦${totalPayable.toLocaleString("en-NG")}</h3>
+
+      <p>Wallet Balance: ₦${walletBalance.toLocaleString("en-NG")}</p>
+
       <p><strong>No money was deducted. No airtime was sent.</strong></p>
     </div>
   `;
