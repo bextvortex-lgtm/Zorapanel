@@ -852,7 +852,7 @@ async function confirmAirtimePurchase() {
 }
 
 
-  
+
 function validateData() {
   const network = document.getElementById("dataNetwork").value;
   const phone = document.getElementById("dataPhone").value.trim();
@@ -860,6 +860,7 @@ function validateData() {
   const planId = planSelect.value;
   const selectedOption = planSelect.options[planSelect.selectedIndex];
   const planName = selectedOption?.dataset.planName;
+  const planPrice = Number(selectedOption?.dataset.price);
   const message = document.getElementById("dataMessage");
 
   if (!network) {
@@ -872,7 +873,7 @@ function validateData() {
     return;
   }
 
-  if (!planId || !planName) {
+  if (!planId || !planName || !Number.isFinite(planPrice) || planPrice <= 0) {
     message.textContent = "Please select a valid data plan.";
     return;
   }
@@ -883,6 +884,7 @@ function validateData() {
       <p><strong>Network:</strong> ${network}</p>
       <p><strong>Phone:</strong> ${phone}</p>
       <p><strong>Data Plan:</strong> ${planName}</p>
+      <p><strong>Plan Price:</strong> ₦${planPrice.toLocaleString("en-NG")}</p>
 
       <button onclick="confirmDataPurchase()">
         Confirm Purchase
@@ -894,7 +896,6 @@ function validateData() {
     </div>
   `;
 }
-
 
 function cancelData() {
   document.getElementById("dataMessage").innerHTML = "";
