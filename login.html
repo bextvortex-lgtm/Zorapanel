@@ -814,6 +814,20 @@ function cancelData() {
 }
 
 
+function resetElectricityMeterVerification() {
+  const meterInput = document.getElementById("meterNumber");
+  const message = document.getElementById("meterVerificationMessage");
+
+  if (meterInput) {
+    meterInput.dataset.verified = "";
+  }
+
+  if (message) {
+    message.textContent =
+      "Meter details changed. Please verify your meter again.";
+  }
+}
+  
 function verifyElectricityMeter() {
   const provider = document.getElementById("electricityProvider").value;
   const meterType = document.getElementById("meterType").value;
