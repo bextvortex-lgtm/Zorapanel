@@ -812,6 +812,45 @@ function validateData() {
 function cancelData() {
   document.getElementById("dataMessage").innerHTML = "";
 }
+
+
+function verifyElectricityMeter() {
+  const provider = document.getElementById("electricityProvider").value;
+  const meterType = document.getElementById("meterType").value;
+  const meterNumber = document.getElementById("meterNumber").value.trim();
+  const message = document.getElementById("meterVerificationMessage");
+  const meterInput = document.getElementById("meterNumber");
+
+  meterInput.dataset.verified = "";
+
+  if (!provider) {
+    message.textContent = "Please select your electricity provider.";
+    return;
+  }
+
+  if (!meterType) {
+    message.textContent = "Please select your meter type.";
+    return;
+  }
+
+  if (!/^\d{6,20}$/.test(meterNumber)) {
+    message.textContent = "Please enter a valid meter number.";
+    return;
+  }
+
+  meterInput.dataset.verified =
+    provider + "|" + meterType + "|" + meterNumber;
+
+  message.innerHTML = `
+    <div style="padding:12px;background:#e8f5e9;border-radius:8px;">
+      <strong>Meter Verification Simulation Successful!</strong>
+      <p>Provider: ${provider}</p>
+      <p>Meter Type: ${meterType}</p>
+      <p>Meter Number: ${meterNumber}</p>
+      <p>This is a format check only. No live meter lookup has been performed.</p>
+    </div>
+  `;
+}
   
 async function validateElectricity() {
   const provider = document.getElementById("electricityProvider").value;
@@ -819,7 +858,15 @@ async function validateElectricity() {
   const meterNumber = document.getElementById("meterNumber").value.trim();
   const amount = Number(document.getElementById("electricityAmount").value);
   const message = document.getElementById("electricityMessage");
+const meterInput = document.getElementById("meterNumber");
 
+const verificationKey =
+  provider + "|" + meterType + "|" + meterNumber;
+
+if (meterInput.dataset.verified !== verificationKey) {
+  message.textContent = "Please verify your meter number first.";
+  return;
+}
   if (!provider) {
     message.textContent = "Please select your electricity provider.";
     return;
