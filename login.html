@@ -1442,6 +1442,8 @@ function previewWalletFunding() {
 }
   
 async function loadTransactionHistory() {
+
+async function loadTransactionHistory() {
   const message = document.getElementById("transactionMessage");
   const list = document.getElementById("transactionList");
 
@@ -1450,7 +1452,7 @@ async function loadTransactionHistory() {
 
   const { data, error } = await supabaseClient
     .from("transactions")
-    .select("service, provider, recipient, amount, status, created_at, provider_reference")
+    .select("service, provider, recipient, amount, base_amount, service_charge, discount_amount, status, created_at, provider_reference")
     .order("created_at", { ascending: false })
     .limit(20);
 
@@ -1502,29 +1504,57 @@ async function loadTransactionHistory() {
 
     const details = document.createElement("p");
     details.style.cssText = "margin:12px 0 6px;color:#555;";
-    details.textContent =
-      "Provider: " + transaction.provider;
+    details.textContent = "Provider: " + transaction.provider;
 
     const recipient = document.createElement("p");
     recipient.style.cssText = "margin:6px 0;color:#555;";
-    recipient.textContent =
-      "Recipient: " + transaction.recipient;
+    recipient.textContent = "Recipient: " + transaction.recipient;
+
+    card.append(heading, details, recipient);
+
+    // AIRTIME PAYMENT BREAKDOWN
+    if (
+      transaction.service === "Airtime Simulation" &&
+      transaction.base_amount !== null
+    ) {
+      const airtimeValue = document.createElement("p");
+      airtimeValue.textContent =
+        "Airtime Value: ₦" +
+        Number(transaction.base_amount).toLocaleString("en-NG");
+      airtimeValue.style.cssText = "margin:8px 0;color:#555;";
+
+      const charge = document.createElement("p");
+      charge.textContent =
+        "Service Charge: ₦" +
+        Number(transaction.service_charge || 0).toLocaleString("en-NG");
+      charge.style.cssText = "margin:8px 0;color:#555;";
+
+      const discount = document.createElement("p");
+      discount.textContent =
+        "Discount: -₦" +
+        Number(transaction.discount_amount || 0).toLocaleString("en-NG");
+      discount.style.cssText = "margin:8px 0;color:#16803d;";
+
+      card.append(airtimeValue, charge, discount);
+    }
 
     const amount = document.createElement("p");
     amount.style.cssText =
       "margin:10px 0;font-size:18px;font-weight:bold;color:#172554;";
     amount.textContent =
-      "₦" + Number(transaction.amount).toLocaleString("en-NG");
+      "Total Payable: ₦" +
+      Number(transaction.amount).toLocaleString("en-NG");
 
     const date = document.createElement("p");
     date.style.cssText = "margin:6px 0 0;color:#888;font-size:12px;";
     date.textContent =
       new Date(transaction.created_at).toLocaleString("en-NG");
 
-    card.append(heading, details, recipient, amount, date);
+    card.append(amount, date);
     list.appendChild(card);
   });
 }
+
 
 
 </script>
