@@ -424,52 +424,80 @@ async function loadAdminTransactions() {
     recipient.textContent =
       "Recipient: " + transaction.recipient;
 
-    const amount = document.createElement("h3");
-    amount.textContent =
-      "₦" + Number(transaction.amount).toLocaleString("en-NG");
-
-    const status = document.createElement("span");
-
-status.textContent = transaction.status.toUpperCase();
-
-const statusColors = {
-  successful: ["#d1fae5", "#065f46"],
-  pending: ["#fef3c7", "#92400e"],
-  failed: ["#fee2e2", "#991b1b"],
-  simulation: ["#e0e7ff", "#3730a3"]
-};
-
-const colors = statusColors[transaction.status] ||
-  ["#f3f4f6", "#374151"];
-
-status.style.cssText = `
-  display:inline-block;
-  padding:6px 12px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:bold;
-  background:${colors[0]};
-  color:${colors[1]};
-`;
-
-    const date = document.createElement("small");
-    date.textContent =
-      new Date(transaction.created_at).toLocaleString("en-NG");
-
     card.append(
       heading,
       details,
       customerName,
       provider,
-      recipient,
-      amount,
-      status,
-      date
+      recipient
     );
+
+    if (
+      transaction.service === "Airtime Simulation" &&
+      transaction.base_amount !== null &&
+      transaction.base_amount !== undefined
+    ) {
+      const airtimeValue = document.createElement("p");
+      airtimeValue.textContent =
+        "Airtime Value: ₦" +
+        Number(transaction.base_amount).toLocaleString("en-NG");
+
+      const serviceCharge = document.createElement("p");
+      serviceCharge.textContent =
+        "Service Charge: ₦" +
+        Number(transaction.service_charge || 0).toLocaleString("en-NG");
+
+      const discount = document.createElement("p");
+      discount.textContent =
+        "Discount: -₦" +
+        Number(transaction.discount_amount || 0).toLocaleString("en-NG");
+
+      card.append(
+        airtimeValue,
+        serviceCharge,
+        discount
+      );
+    }
+
+    const amount = document.createElement("h3");
+    amount.textContent =
+      "Total Payable: ₦" +
+      Number(transaction.amount).toLocaleString("en-NG");
+
+    const status = document.createElement("span");
+
+    status.textContent = transaction.status.toUpperCase();
+
+    const statusColors = {
+      successful: ["#d1fae5", "#065f46"],
+      pending: ["#fef3c7", "#92400e"],
+      failed: ["#fee2e2", "#991b1b"],
+      simulation: ["#e0e7ff", "#3730a3"]
+    };
+
+    const colors = statusColors[transaction.status] ||
+      ["#f3f4f6", "#374151"];
+
+    status.style.cssText = `
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:20px;
+      font-size:12px;
+      font-weight:bold;
+      background:${colors[0]};
+      color:${colors[1]};
+    `;
+
+    const date = document.createElement("small");
+    date.textContent =
+      new Date(transaction.created_at).toLocaleString("en-NG");
+
+    card.append(amount, status, date);
 
     list.appendChild(card);
   });
-  }
+}
+
     
 async function loadAdminCustomers() {
   const message = document.getElementById("adminCustomerMessage");
