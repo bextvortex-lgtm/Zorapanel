@@ -433,6 +433,17 @@ async function loadAdminTransactions() {
     );
 
     if (
+      transaction.service === "Data Simulation" &&
+      transaction.plan_name
+    ) {
+      const dataPlan = document.createElement("p");
+      dataPlan.textContent =
+        "Data Plan: " + transaction.plan_name;
+
+      card.appendChild(dataPlan);
+    }
+
+    if (
       transaction.service === "Airtime Simulation" &&
       transaction.base_amount !== null &&
       transaction.base_amount !== undefined
@@ -497,6 +508,7 @@ async function loadAdminTransactions() {
     list.appendChild(card);
   });
 }
+
 
     
 async function loadAdminCustomers() {
