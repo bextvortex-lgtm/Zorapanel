@@ -651,7 +651,8 @@ async function loadCustomerDataPlans() {
   }
 }
 
-function validateAirtime() {
+
+async function validateAirtime() {
   const network = document.getElementById("airtimeNetwork").value;
   const phone = document.getElementById("airtimePhone").value.trim();
   const amount = Number(document.getElementById("airtimeAmount").value);
@@ -667,17 +668,79 @@ function validateAirtime() {
     return;
   }
 
-  if (!Number.isFinite(amount) || amount < 100) {
-    message.textContent = "Minimum airtime amount is ₦100.";
+  if (!Number.isFinite(amount) || amount <= 0) {
+    message.textContent = "Please enter a valid airtime amount.";
     return;
+  }
+
+  message.textContent = "Loading airtime settings...";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "customer-airtime-simulation",
+      { method: "GET" }
+    );
+
+  if (error || !data || !data.success) {
+    console.error(error, data);
+
+    message.textContent =
+      data?.error || "Could not load airtime settings. Please try again.";
+
+    return;
+  }
+
+  const settings = data.settings;
+
+  const minAmount = Number(settings.min_amount);
+  const maxAmount = Number(settings.max_amount);
+  const serviceCharge = Number(settings.service_charge);
+  const discountValue = Number(settings.discount_value);
+
+  if (amount < minAmount || amount > maxAmount) {
+    message.textContent =
+      `Airtime amount must be between ₦${minAmount.toLocaleString("en-NG")} and ₦${maxAmount.toLocaleString("en-NG")}.`;
+    return;
+  }
+
+  let discount = 0;
+
+  if (settings.discount_type === "fixed") {
+    discount = Math.min(discountValue, amount);
+  } else if (settings.discount_type === "percentage") {
+    discount = amount * discountValue / 100;
+  }
+
+  discount = Math.round(discount * 100) / 100;
+
+  const totalPayable = Math.max(
+    0,
+    Math.round((amount + serviceCharge - discount) * 100) / 100
+  );
+
+  let discountLabel = "Discount";
+
+  if (settings.discount_type === "percentage") {
+    discountLabel = `Discount (${discountValue}%)`;
+  }
+
+  if (settings.discount_type === "fixed") {
+    discountLabel = "Fixed Discount";
   }
 
   message.innerHTML = `
     <div style="margin-top:15px;padding:15px;background:#f0f5ff;border-radius:10px;">
       <h3>Confirm Airtime Purchase</h3>
+
       <p><strong>Network:</strong> ${network}</p>
       <p><strong>Phone:</strong> ${phone}</p>
-      <p><strong>Amount:</strong> ₦${amount.toLocaleString("en-NG")}</p>
+      <p><strong>Airtime Value:</strong> ₦${amount.toLocaleString("en-NG")}</p>
+      <p><strong>Service Charge:</strong> ₦${serviceCharge.toLocaleString("en-NG")}</p>
+      <p><strong>${discountLabel}:</strong> -₦${discount.toLocaleString("en-NG")}</p>
+
+      <hr>
+
+      <h3>Total Payable: ₦${totalPayable.toLocaleString("en-NG")}</h3>
 
       <button onclick="confirmAirtimePurchase()">
         Confirm Purchase
@@ -686,6 +749,10 @@ function validateAirtime() {
       <button onclick="cancelAirtime()" style="background:#777;margin-top:8px;">
         Cancel
       </button>
+
+      <p style="font-size:12px;color:#555;">
+        Simulation only. No money will be deducted and no airtime will be delivered.
+      </p>
     </div>
   `;
 }
