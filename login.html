@@ -1454,7 +1454,7 @@ async function loadTransactionHistory() {
 
   const { data, error } = await supabaseClient
     .from("transactions")
-    .select("service, provider, recipient, amount, base_amount, service_charge, discount_amount, status, created_at, provider_reference")
+    .select("service, provider, recipient, amount, base_amount, service_charge, discount_amount, plan_name, status, created_at, provider_reference")
     .order("created_at", { ascending: false })
     .limit(20);
 
@@ -1539,7 +1539,17 @@ async function loadTransactionHistory() {
 
       card.append(airtimeValue, charge, discount);
     }
+if (
+  transaction.service === "Data Simulation" &&
+  transaction.plan_name
+) {
+  const plan = document.createElement("p");
 
+  plan.style.cssText = "margin:6px 0;color:#555;";
+  plan.textContent = "Data Plan: " + transaction.plan_name;
+
+  card.appendChild(plan);
+        }
     const amount = document.createElement("p");
     amount.style.cssText =
       "margin:10px 0;font-size:18px;font-weight:bold;color:#172554;";
