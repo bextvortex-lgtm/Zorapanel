@@ -957,7 +957,44 @@ async function loadAdminElectricitySettings() {
 
   message.textContent = "Electricity settings loaded successfully.";
 }
+async function loadAdminAirtimeSettings() {
+  const message = document.getElementById("adminAirtimeMessage");
 
+  message.textContent = "Loading airtime settings...";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "admin-airtime-settings",
+      { method: "GET" }
+    );
+
+  if (error || !data || !data.success) {
+    message.textContent =
+      data?.error || "Could not load airtime settings.";
+    console.error(error, data);
+    return;
+  }
+
+  const settings = data.settings;
+
+  document.getElementById("adminAirtimeMin").value =
+    settings.min_amount;
+
+  document.getElementById("adminAirtimeMax").value =
+    settings.max_amount;
+
+  document.getElementById("adminAirtimeCharge").value =
+    settings.service_charge;
+
+  document.getElementById("adminAirtimeDiscountType").value =
+    settings.discount_type;
+
+  document.getElementById("adminAirtimeDiscountValue").value =
+    settings.discount_value;
+
+  message.textContent = "Airtime settings loaded successfully.";
+}
+  
 async function saveAdminElectricitySettings() {
   const message = document.getElementById("adminElectricityMessage");
 
