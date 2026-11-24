@@ -994,7 +994,72 @@ async function loadAdminAirtimeSettings() {
 
   message.textContent = "Airtime settings loaded successfully.";
 }
-  
+ async function saveAdminAirtimeSettings() {
+  const message = document.getElementById("adminAirtimeMessage");
+
+  const min_amount = Number(
+    document.getElementById("adminAirtimeMin").value
+  );
+
+  const max_amount = Number(
+    document.getElementById("adminAirtimeMax").value
+  );
+
+  const service_charge = Number(
+    document.getElementById("adminAirtimeCharge").value
+  );
+
+  const discount_type =
+    document.getElementById("adminAirtimeDiscountType").value;
+
+  const discount_value = Number(
+    document.getElementById("adminAirtimeDiscountValue").value
+  );
+
+  if (
+    !Number.isFinite(min_amount) ||
+    min_amount < 1 ||
+    !Number.isFinite(max_amount) ||
+    max_amount < min_amount ||
+    !Number.isFinite(service_charge) ||
+    service_charge < 0 ||
+    !["none", "fixed", "percentage"].includes(discount_type) ||
+    !Number.isFinite(discount_value) ||
+    discount_value < 0 ||
+    (discount_type === "percentage" && discount_value > 100)
+  ) {
+    message.textContent = "Please enter valid airtime settings.";
+    return;
+  }
+
+  message.textContent = "Saving airtime settings...";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "admin-airtime-settings",
+      {
+        method: "POST",
+        body: {
+          min_amount,
+          max_amount,
+          service_charge,
+          discount_type,
+          discount_value
+        }
+      }
+    );
+
+  if (error || !data || !data.success) {
+    console.error(error, data);
+
+    message.textContent =
+      data?.error || "Could not save airtime settings.";
+
+    return;
+  }
+
+  message.textContent = "Airtime settings saved successfully!";
+ } 
 async function saveAdminElectricitySettings() {
   const message = document.getElementById("adminElectricityMessage");
 
