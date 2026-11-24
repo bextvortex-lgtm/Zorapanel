@@ -590,6 +590,7 @@ window.location.href = "index.html";
   serviceArea.scrollIntoView({ behavior: "smooth" });
 }
   
+
 async function loadCustomerDataPlans() {
   const network = document.getElementById("dataNetwork");
   const planSelect = document.getElementById("dataPlan");
@@ -637,6 +638,8 @@ async function loadCustomerDataPlans() {
 
     option.value = plan.id;
     option.dataset.planName = plan.plan_name;
+    option.dataset.price = Number(plan.price);
+
     option.textContent =
       plan.plan_name + " - ₦" +
       Number(plan.price).toLocaleString("en-NG");
@@ -650,7 +653,6 @@ async function loadCustomerDataPlans() {
     message.textContent = "";
   }
 }
-
 
 async function validateAirtime() {
   const network = document.getElementById("airtimeNetwork").value;
