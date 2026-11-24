@@ -313,6 +313,52 @@ section h3 {
     </button>
   </div>
   </section>
+  <section>
+  <h3>Airtime Settings Management</h3>
+
+  <div id="adminAirtimeMessage">
+    Loading airtime settings...
+  </div>
+
+  <div class="card">
+    <label>Minimum Airtime Amount (₦)</label>
+    <input type="number" id="adminAirtimeMin"
+      min="1" placeholder="Enter minimum amount">
+
+    <br><br>
+
+    <label>Maximum Airtime Amount (₦)</label>
+    <input type="number" id="adminAirtimeMax"
+      min="1" placeholder="Enter maximum amount">
+
+    <br><br>
+
+    <label>Service Charge (₦)</label>
+    <input type="number" id="adminAirtimeCharge"
+      min="0" placeholder="Enter service charge">
+
+    <br><br>
+
+    <label>Discount Type</label>
+    <select id="adminAirtimeDiscountType">
+      <option value="none">No Discount</option>
+      <option value="fixed">Fixed Discount (₦)</option>
+      <option value="percentage">Percentage Discount (%)</option>
+    </select>
+
+    <br><br>
+
+    <label>Discount Value</label>
+    <input type="number" id="adminAirtimeDiscountValue"
+      min="0" placeholder="Enter discount value">
+
+    <br><br>
+
+    <button onclick="saveAdminAirtimeSettings()">
+      Save Airtime Settings
+    </button>
+  </div>
+  </section>
 </main>
   
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
