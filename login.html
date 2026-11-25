@@ -1566,7 +1566,25 @@ if (
     list.appendChild(card);
   });
 }
+// ELECTRICITY PAYMENT BREAKDOWN
+if (
+  transaction.service === "Electricity Simulation" &&
+  transaction.base_amount !== null
+) {
+  const electricityValue = document.createElement("p");
+  electricityValue.textContent =
+    "Electricity Amount: ₦" +
+    Number(transaction.base_amount).toLocaleString("en-NG");
+  electricityValue.style.cssText = "margin:8px 0;color:#555;";
 
+  const electricityCharge = document.createElement("p");
+  electricityCharge.textContent =
+    "Service Charge: ₦" +
+    Number(transaction.service_charge || 0).toLocaleString("en-NG");
+  electricityCharge.style.cssText = "margin:8px 0;color:#555;";
+
+  card.append(electricityValue, electricityCharge);
+}
 </script>
 </body>
 </html>
