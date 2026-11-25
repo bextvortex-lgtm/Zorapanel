@@ -470,6 +470,28 @@ async function loadAdminTransactions() {
       );
     }
 
+    // ELECTRICITY PAYMENT BREAKDOWN
+    if (
+      transaction.service === "Electricity Simulation" &&
+      transaction.base_amount !== null &&
+      transaction.base_amount !== undefined
+    ) {
+      const electricityValue = document.createElement("p");
+      electricityValue.textContent =
+        "Electricity Amount: ₦" +
+        Number(transaction.base_amount).toLocaleString("en-NG");
+
+      const electricityCharge = document.createElement("p");
+      electricityCharge.textContent =
+        "Service Charge: ₦" +
+        Number(transaction.service_charge || 0).toLocaleString("en-NG");
+
+      card.append(
+        electricityValue,
+        electricityCharge
+      );
+    }
+
     const amount = document.createElement("h3");
     amount.textContent =
       "Total Payable: ₦" +
