@@ -238,9 +238,11 @@ async function loadCustomerServices() {
     button.style.display = "none";
   });
 
-  const { data, error } =
-    await supabaseClient.functions.invoke("customer-services");
-
+ const { data, error } =
+  await supabaseClient.functions.invoke("customer-services", {
+    method: "GET"
+  });
+  
   if (error || !data || !Array.isArray(data.services)) {
     console.error("Could not load active services:", error);
     return;
