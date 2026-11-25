@@ -1488,11 +1488,11 @@ async function loadTransactionHistory() {
       "display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;";
 
     const service = document.createElement("strong");
-    service.textContent = transaction.service.replace(" Simulation", "");
+    service.textContent = (transaction.service || "").replace(" Simulation", "");
     service.style.fontSize = "16px";
 
     const badge = document.createElement("span");
-    badge.textContent = transaction.status.toUpperCase();
+    badge.textContent = (transaction.status || "").toUpperCase();
     badge.style.cssText = `
       background:#fff3cd;
       color:#856404;
@@ -1539,17 +1539,40 @@ async function loadTransactionHistory() {
 
       card.append(airtimeValue, charge, discount);
     }
-if (
-  transaction.service === "Data Simulation" &&
-  transaction.plan_name
-) {
-  const plan = document.createElement("p");
 
-  plan.style.cssText = "margin:6px 0;color:#555;";
-  plan.textContent = "Data Plan: " + transaction.plan_name;
+    // DATA PLAN DETAILS
+    if (
+      transaction.service === "Data Simulation" &&
+      transaction.plan_name
+    ) {
+      const plan = document.createElement("p");
+      plan.style.cssText = "margin:6px 0;color:#555;";
+      plan.textContent = "Data Plan: " + transaction.plan_name;
 
-  card.appendChild(plan);
-        }
+      card.appendChild(plan);
+    }
+
+    // ELECTRICITY PAYMENT BREAKDOWN
+    if (
+      transaction.service === "Electricity Simulation" &&
+      transaction.base_amount !== null
+    ) {
+      const electricityValue = document.createElement("p");
+      electricityValue.textContent =
+        "Electricity Amount: ₦" +
+        Number(transaction.base_amount).toLocaleString("en-NG");
+      electricityValue.style.cssText = "margin:8px 0;color:#555;";
+
+      const electricityCharge = document.createElement("p");
+      electricityCharge.textContent =
+        "Service Charge: ₦" +
+        Number(transaction.service_charge || 0).toLocaleString("en-NG");
+      electricityCharge.style.cssText = "margin:8px 0;color:#555;";
+
+      card.append(electricityValue, electricityCharge);
+    }
+
+    // TOTAL PAYABLE
     const amount = document.createElement("p");
     amount.style.cssText =
       "margin:10px 0;font-size:18px;font-weight:bold;color:#172554;";
@@ -1565,25 +1588,6 @@ if (
     card.append(amount, date);
     list.appendChild(card);
   });
-}
-// ELECTRICITY PAYMENT BREAKDOWN
-if (
-  transaction.service === "Electricity Simulation" &&
-  transaction.base_amount !== null
-) {
-  const electricityValue = document.createElement("p");
-  electricityValue.textContent =
-    "Electricity Amount: ₦" +
-    Number(transaction.base_amount).toLocaleString("en-NG");
-  electricityValue.style.cssText = "margin:8px 0;color:#555;";
-
-  const electricityCharge = document.createElement("p");
-  electricityCharge.textContent =
-    "Service Charge: ₦" +
-    Number(transaction.service_charge || 0).toLocaleString("en-NG");
-  electricityCharge.style.cssText = "margin:8px 0;color:#555;";
-
-  card.append(electricityValue, electricityCharge);
 }
 </script>
 </body>
