@@ -322,7 +322,11 @@ async function loadCustomerDashboard(user) {
   ) || "User";
 
   document.getElementById("customerName").textContent = username;
-
+message.textContent =
+  "DEBUG — Profile username: " + (profile.username || "EMPTY") +
+  " | Auth username: " + (user.user_metadata?.username || "EMPTY") +
+  " | Full name: " + (profile.full_name || "EMPTY");
+  
   const status = (profile.account_status || "unknown").toLowerCase();
 
   const statusStyles = {
