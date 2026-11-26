@@ -111,49 +111,43 @@ section h3 {
 
 </div>
 
+
 <section>
-  <h3>Customer Management</h3>
-  <div id="adminCustomerMessage">
-  Loading customers...
-</div>
-
-<div id="adminCustomerList"></div>
-
-<button onclick="loadAdminCustomers()">
-  Refresh Customers
-</button>
-  <p class="notice">Customer records will appear here.</p>
+  <details class="admin-panel">
+    <summary>
+      <h3>Customer Management</h3>
+    </summary>
+    <div id="adminCustomerMessage">Loading customers...</div>
+    <div id="adminCustomerList"></div>
+    <button onclick="loadAdminCustomers()">Refresh Customers</button>
+    <p class="notice">Customer records will appear here.</p>
+  </details>
 </section>
 
 <section>
-  <h3>Transaction Management</h3>
-  <div id="adminTransactionMessage">
-  Loading transactions...
-</div>
-
-<div id="adminTransactionList"></div>
-
-<button onclick="loadAdminTransactions()">
-  Refresh Transactions
-</button>
-  <p class="notice">Customer transactions will appear here.</p>
+  <details class="admin-panel">
+    <summary>
+      <h3>Transaction Management</h3>
+    </summary>
+    <div id="adminTransactionMessage">Loading transactions...</div>
+    <div id="adminTransactionList"></div>
+    <button onclick="loadAdminTransactions()">Refresh Transactions</button>
+    <p class="notice">Customer transactions will appear here.</p>
+  </details>
 </section>
 
 <section>
-  <h3>Wallet Management</h3>
-  <div id="adminWalletMessage">
-  Loading wallets...
-</div>
-
-<div id="adminWalletList"></div>
-
-<button onclick="loadAdminWallets()">
-  Refresh Wallets
-</button>
-  <p class="notice">Wallet monitoring will appear here.</p>
+  <details class="admin-panel">
+    <summary>
+      <h3>Wallet Management</h3>
+    </summary>
+    <div id="adminWalletMessage">Loading wallets...</div>
+    <div id="adminWalletList"></div>
+    <button onclick="loadAdminWallets()">Refresh Wallets</button>
+    <p class="notice">Wallet monitoring will appear here.</p>
+  </details>
 </section>
 
-<section>
   <h3>Service Management</h3>
   <div id="adminServiceMessage">
   Loading services...
