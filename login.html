@@ -300,11 +300,7 @@ async function loadCustomerDashboard(user) {
     .select("username, full_name, account_status")
     .eq("id", user.id)
     .maybeSingle();
-alert(
-  "Profile error: " + (profileError?.message || "NONE") +
-  "\nUsername: " + (profile?.username || "EMPTY") +
-  "\nAccount status: " + (profile?.account_status || "EMPTY")
-);
+
   if (profileError || !profile) {
 
     message.textContent = "Could not load your account details. Please refresh.";
