@@ -1231,8 +1231,9 @@ async function verifyAdminAccess() {
   }
 
   const { data, error } =
-    await supabaseClient.functions.invoke("admin-check");
-
+  await supabaseClient.functions.invoke("admin-check", {
+    method: "GET"
+  });
 if (error || !data || !data.isAdmin) {
   document.body.innerHTML =
     "<h2>Admin verification failed</h2>" +
