@@ -306,12 +306,20 @@ async function loadCustomerDashboard(user) {
     return;
   }
 
-  const username =
-    profile.username ||
-    user.user_metadata?.username ||
-    profile.full_name ||
-    user.email?.split("@")[0] ||
-    "User";
+  // Ignore empty values and placeholder usernames.
+  const possibleNames = [
+    user.user_metadata?.username,
+    profile.username,
+    user.user_metadata?.full_name,
+    profile.full_name,
+    user.email?.split("@")[0]
+  ];
+
+  const username = possibleNames.find(name =>
+    typeof name === "string" &&
+    name.trim() !== "" &&
+    name.trim().toLowerCase() !== "user"
+  ) || "User";
 
   document.getElementById("customerName").textContent = username;
 
