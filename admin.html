@@ -547,7 +547,9 @@ async function loadAdminTransactions() {
 
 let adminCustomerPage = 1;
   
-
+let adminCustomerSearch = "";
+let adminCustomerSearchTimer = null;
+  
 async function loadAdminCustomers() {
   const message = document.getElementById("adminCustomerMessage");
   const list = document.getElementById("adminCustomerList");
