@@ -101,23 +101,43 @@ button{width:100%;padding:13px;border:0;border-radius:8px;background:var(--blue)
 <p id="authMessage" aria-live="polite"></p>
 </section>
 
+
 <section class="card hidden" id="customerDashboard">
-<div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:18px;">
-  <h2 style="margin:0;">Welcome, <span id="customerName">User</span>!</h2>
-  <button id="logoutButton" style="background:#dc3545; color:white; border:0; padding:9px 12px; border-radius:7px; width:auto;">Logout</button>
-</div>
 
-<div class="balance">
-  <p>My Wallet Balance</p>
-  <h1 id="customerBalance">₦0.00</h1>
-  <p>Available Balance</p>
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:18px;">
+    <h2 style="margin:0;">Welcome, <span id="customerName">User</span>!</h2>
+    <button id="logoutButton" style="background:#dc3545; color:white; border:0; padding:9px 12px; border-radius:7px; width:auto;">Logout</button>
+  </div>
 
-  <button onclick="openFundWallet()" style="background:#0d6efd;color:white;margin-top:10px;">
-    + Fund Wallet
-  </button>
-</div>
+  <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
 
-<div id="fundWalletArea"></div>
+    <button type="button" onclick="window.location.href='profile.html'"
+      style="background:#0d6efd; color:white; padding:11px 18px; border:0; border-radius:8px; width:auto;">
+      👤 My Profile
+    </button>
+
+    <div style="display:flex; align-items:center; gap:8px;">
+      <strong style="font-size:13px;">Account Status:</strong>
+      <span id="customerAccountStatus"
+        style="background:#e9ecef; color:#495057; padding:7px 12px; border-radius:20px; font-size:12px; font-weight:bold;">
+        LOADING...
+      </span>
+    </div>
+
+  </div>
+
+  <div class="balance">
+    <p>My Wallet Balance</p>
+    <h1 id="customerBalance">₦0.00</h1>
+    <p>Available Balance</p>
+
+    <button onclick="openFundWallet()" style="background:#0d6efd;color:white;margin-top:10px;">
+      + Fund Wallet
+    </button>
+  </div>
+
+  <div id="fundWalletArea"></div>
+
 
 <h3>Our Services</h3>
 
