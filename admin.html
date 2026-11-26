@@ -363,11 +363,34 @@ const supabaseClient = window.supabase.createClient(
 "sb_publishable_iEaC5F6rKj-D-1PNHbWPMQ_JWCf4-m5");
   
 let adminTransactionPage = 1;
-  
+  let adminTransactionSearch = "";
+let adminTransactionSearchTimer = null;
 
 async function loadAdminTransactions() {
   const message = document.getElementById("adminTransactionMessage");
   const list = document.getElementById("adminTransactionList");
+
+  let searchInput = document.getElementById("adminTransactionSearch");
+
+  if (!searchInput) {
+    searchInput = document.createElement("input");
+    searchInput.id = "adminTransactionSearch";
+    searchInput.type = "search";
+    searchInput.placeholder = "Search customer username, name or phone...";
+    searchInput.style.cssText = "width:100%;padding:12px;margin:10px 0;border:1px solid #d1d5db;border-radius:8px;box-sizing:border-box;";
+    list.insertAdjacentElement("beforebegin", searchInput);
+
+    searchInput.addEventListener("input", () => {
+      adminTransactionSearch = searchInput.value.trim();
+      adminTransactionPage = 1;
+      clearTimeout(adminTransactionSearchTimer);
+      adminTransactionSearchTimer = setTimeout(() => {
+        loadAdminTransactions();
+      }, 400);
+    });
+  }
+
+  searchInput.value = adminTransactionSearch;
 
   message.textContent = "Loading transactions...";
   list.innerHTML = "";
@@ -382,9 +405,13 @@ async function loadAdminTransactions() {
 
   pagination.innerHTML = "";
 
+  const functionName =
+    "admin-transactions?page=" + adminTransactionPage +
+    "&search=" + encodeURIComponent(adminTransactionSearch);
+
   const { data, error } =
     await supabaseClient.functions.invoke(
-      "admin-transactions?page=" + adminTransactionPage,
+      functionName,
       { method: "GET" }
     );
 
@@ -395,7 +422,9 @@ async function loadAdminTransactions() {
   }
 
   if (data.transactions.length === 0) {
-    message.textContent = "No transactions found.";
+    message.textContent = adminTransactionSearch
+      ? "No transactions matched your search."
+      : "No transactions found.";
     return;
   }
 
@@ -422,10 +451,10 @@ async function loadAdminTransactions() {
     heading.style.marginTop = "0";
 
     const details = document.createElement("p");
-    details.textContent = "Customer: " + transaction.username;
+    details.textContent = "Customer: " + (transaction.username || "N/A");
 
     const customerName = document.createElement("p");
-    customerName.textContent = "Full Name: " + transaction.customerName;
+    customerName.textContent = "Full Name: " + (transaction.customerName || "N/A");
 
     const provider = document.createElement("p");
     provider.textContent = "Provider: " + transaction.provider;
@@ -488,7 +517,7 @@ async function loadAdminTransactions() {
       Number(transaction.amount).toLocaleString("en-NG");
 
     const status = document.createElement("span");
-    status.textContent = transaction.status.toUpperCase();
+    status.textContent = (transaction.status || "").toUpperCase();
 
     const statusColors = {
       successful: ["#d1fae5", "#065f46"],
@@ -543,7 +572,6 @@ async function loadAdminTransactions() {
 
   pagination.append(previous, pageInfo, next);
 }
-    
 
 let adminCustomerPage = 1;
   
