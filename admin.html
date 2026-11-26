@@ -714,6 +714,7 @@ async function loadAdminCustomers() {
 
   
 
+
 async function loadAdminWallets() {
   const message = document.getElementById("adminWalletMessage");
   const list = document.getElementById("adminWalletList");
@@ -721,10 +722,11 @@ async function loadAdminWallets() {
   message.textContent = "Loading wallets...";
   list.innerHTML = "";
 
-const { data, error } =
-  await supabaseClient.functions.invoke("admin-wallets", {
-    method: "GET"
-  });
+  const { data, error } =
+    await supabaseClient.functions.invoke("admin-wallets", {
+      method: "GET"
+    });
+
   if (error || !data || !data.wallets) {
     message.textContent = "Could not load wallets.";
     console.error("Wallet loading error:", error, data);
@@ -752,16 +754,16 @@ const { data, error } =
     `;
 
     const username = document.createElement("h3");
-    username.textContent = "@" + wallet.username;
+    username.textContent = "@" + (wallet.username || "Unknown");
     username.style.marginTop = "0";
 
     const name = document.createElement("p");
     name.textContent =
-      "Full Name: " + wallet.customerName;
+      "Full Name: " + (wallet.customerName || "Not available");
 
     const phone = document.createElement("p");
     phone.textContent =
-      "Phone: " + wallet.phone;
+      "Phone: " + (wallet.phone || "Not available");
 
     const balance = document.createElement("h2");
     balance.textContent =
@@ -772,15 +774,52 @@ const { data, error } =
 
     balance.style.color = "#0f766e";
 
+    // CUSTOMER ACCOUNT STATUS
+    const status = document.createElement("p");
+    const accountStatus = wallet.account_status || "unknown";
+
+    status.textContent =
+      "Account Status: " + accountStatus.toUpperCase();
+
+    status.style.cssText = `
+      display:inline-block;
+      padding:7px 12px;
+      border-radius:20px;
+      font-size:13px;
+      font-weight:bold;
+      margin:8px 0;
+      background:${
+        accountStatus === "active" ? "#dcfce7" :
+        accountStatus === "suspended" ? "#fef3c7" :
+        accountStatus === "deactivated" ? "#fee2e2" : "#e5e7eb"
+      };
+      color:${
+        accountStatus === "active" ? "#166534" :
+        accountStatus === "suspended" ? "#92400e" :
+        accountStatus === "deactivated" ? "#991b1b" : "#374151"
+      };
+    `;
+
     const updated = document.createElement("small");
     updated.textContent =
       "Last Updated: " +
-      new Date(wallet.updated_at).toLocaleString("en-NG");
+      (wallet.updated_at
+        ? new Date(wallet.updated_at).toLocaleString("en-NG")
+        : "Not available");
 
-    card.append(username, name, phone, balance, updated);
+    card.append(
+      username,
+      name,
+      phone,
+      status,
+      balance,
+      updated
+    );
+
     list.appendChild(card);
   });
 }
+
 
 async function loadAdminServices() {
   const message = document.getElementById("adminServiceMessage");
