@@ -527,7 +527,9 @@ async function loadAdminTransactions() {
 }
 
 
-    
+let adminCustomerPage = 1;
+  
+
 async function loadAdminCustomers() {
   const message = document.getElementById("adminCustomerMessage");
   const list = document.getElementById("adminCustomerList");
@@ -535,10 +537,21 @@ async function loadAdminCustomers() {
   message.textContent = "Loading customers...";
   list.innerHTML = "";
 
-const { data, error } =
-  await supabaseClient.functions.invoke("admin-customers", {
-    method: "GET"
-  });
+  let pagination = document.getElementById("adminCustomerPagination");
+
+  if (!pagination) {
+    pagination = document.createElement("div");
+    pagination.id = "adminCustomerPagination";
+    list.insertAdjacentElement("afterend", pagination);
+  }
+
+  pagination.innerHTML = "";
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "admin-customers?page=" + adminCustomerPage,
+      { method: "GET" }
+    );
 
   if (error || !data || !data.customers) {
     message.textContent = "Could not load customers.";
@@ -552,7 +565,10 @@ const { data, error } =
   }
 
   message.textContent =
-    "Showing " + data.customers.length + " registered customers.";
+    "Showing " + data.customers.length +
+    " of " + data.totalCustomers +
+    " customers. Page " + data.page +
+    " of " + data.totalPages + ".";
 
   data.customers.forEach((customer) => {
     const card = document.createElement("div");
@@ -581,7 +597,31 @@ const { data, error } =
     card.append(username, name, phone);
     list.appendChild(card);
   });
-  }
+
+  const previous = document.createElement("button");
+  previous.textContent = "Previous";
+  previous.disabled = !data.hasPreviousPage;
+  previous.onclick = () => {
+    adminCustomerPage--;
+    loadAdminCustomers();
+  };
+
+  const next = document.createElement("button");
+  next.textContent = "Next";
+  next.disabled = !data.hasNextPage;
+  next.onclick = () => {
+    adminCustomerPage++;
+    loadAdminCustomers();
+  };
+
+  const pageInfo = document.createElement("span");
+  pageInfo.textContent =
+    " Page " + data.page + " of " + data.totalPages + " ";
+  pageInfo.style.margin = "0 12px";
+
+  pagination.append(previous, pageInfo, next);
+}
+
   
 
 async function loadAdminWallets() {
