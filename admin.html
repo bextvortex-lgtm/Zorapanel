@@ -376,8 +376,9 @@ async function loadAdminTransactions() {
   list.innerHTML = "";
 
   const { data, error } =
-    await supabaseClient.functions.invoke("admin-transactions");
-
+  await supabaseClient.functions.invoke("admin-transactions", {
+    method: "GET"
+  });
   if (error || !data || !data.transactions) {
     message.textContent = "Could not load transactions.";
     console.error("Transaction loading error:", error, data);
