@@ -597,9 +597,10 @@ async function loadAdminWallets() {
   message.textContent = "Loading wallets...";
   list.innerHTML = "";
 
-  const { data, error } =
-    await supabaseClient.functions.invoke("admin-wallets");
-
+const { data, error } =
+  await supabaseClient.functions.invoke("admin-wallets", {
+    method: "GET"
+  });
   if (error || !data || !data.wallets) {
     message.textContent = "Could not load wallets.";
     console.error("Wallet loading error:", error, data);
