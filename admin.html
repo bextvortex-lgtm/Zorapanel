@@ -549,10 +549,43 @@ let adminCustomerPage = 1;
   
 let adminCustomerSearch = "";
 let adminCustomerSearchTimer = null;
-  
+
 async function loadAdminCustomers() {
   const message = document.getElementById("adminCustomerMessage");
   const list = document.getElementById("adminCustomerList");
+
+  let searchInput = document.getElementById("adminCustomerSearch");
+
+  if (!searchInput) {
+    searchInput = document.createElement("input");
+    searchInput.id = "adminCustomerSearch";
+    searchInput.type = "search";
+    searchInput.placeholder = "Search username, name or phone...";
+    searchInput.style.cssText = `
+      width:100%;
+      padding:12px;
+      margin:12px 0;
+      border:1px solid #d1d5db;
+      border-radius:8px;
+      box-sizing:border-box;
+      font-size:15px;
+    `;
+
+    list.insertAdjacentElement("beforebegin", searchInput);
+
+    searchInput.addEventListener("input", () => {
+      adminCustomerSearch = searchInput.value.trim();
+      adminCustomerPage = 1;
+
+      clearTimeout(adminCustomerSearchTimer);
+
+      adminCustomerSearchTimer = setTimeout(() => {
+        loadAdminCustomers();
+      }, 400);
+    });
+  }
+
+  searchInput.value = adminCustomerSearch;
 
   message.textContent = "Loading customers...";
   list.innerHTML = "";
@@ -567,9 +600,13 @@ async function loadAdminCustomers() {
 
   pagination.innerHTML = "";
 
+  const functionName =
+    "admin-customers?page=" + adminCustomerPage +
+    "&search=" + encodeURIComponent(adminCustomerSearch);
+
   const { data, error } =
     await supabaseClient.functions.invoke(
-      "admin-customers?page=" + adminCustomerPage,
+      functionName,
       { method: "GET" }
     );
 
@@ -580,7 +617,9 @@ async function loadAdminCustomers() {
   }
 
   if (data.customers.length === 0) {
-    message.textContent = "No registered customers found.";
+    message.textContent = adminCustomerSearch
+      ? "No customers matched your search."
+      : "No registered customers found.";
     return;
   }
 
@@ -621,6 +660,7 @@ async function loadAdminCustomers() {
   const previous = document.createElement("button");
   previous.textContent = "Previous";
   previous.disabled = !data.hasPreviousPage;
+
   previous.onclick = () => {
     adminCustomerPage--;
     loadAdminCustomers();
@@ -629,6 +669,7 @@ async function loadAdminCustomers() {
   const next = document.createElement("button");
   next.textContent = "Next";
   next.disabled = !data.hasNextPage;
+
   next.onclick = () => {
     adminCustomerPage++;
     loadAdminCustomers();
@@ -641,6 +682,7 @@ async function loadAdminCustomers() {
 
   pagination.append(previous, pageInfo, next);
 }
+
 
   
 
