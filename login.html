@@ -302,6 +302,12 @@ async function loadCustomerDashboard(user) {
     .maybeSingle();
 
   if (profileError || !profile) {
+    alert(
+  "Profile username: " + (profile?.username || "EMPTY") +
+  "\nAuth username: " + (user.user_metadata?.username || "EMPTY") +
+  "\nFull name: " + (profile?.full_name || "EMPTY") +
+  "\nEmail: " + (user.email || "EMPTY")
+);
     message.textContent = "Could not load your account details. Please refresh.";
     statusElement.textContent = "UNKNOWN";
     return;
