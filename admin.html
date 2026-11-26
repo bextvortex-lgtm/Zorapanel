@@ -540,8 +540,10 @@ async function loadAdminCustomers() {
   message.textContent = "Loading customers...";
   list.innerHTML = "";
 
-  const { data, error } =
-    await supabaseClient.functions.invoke("admin-customers");
+const { data, error } =
+  await supabaseClient.functions.invoke("admin-customers", {
+    method: "GET"
+  });
 
   if (error || !data || !data.customers) {
     message.textContent = "Could not load customers.";
