@@ -361,6 +361,9 @@ section h3 {
 const supabaseClient = window.supabase.createClient(
   "https://hwdkzubgishdpqwetlck.supabase.co",
 "sb_publishable_iEaC5F6rKj-D-1PNHbWPMQ_JWCf4-m5");
+  
+let adminTransactionPage = 1;
+  
 
 async function loadAdminTransactions() {
   const message = document.getElementById("adminTransactionMessage");
@@ -369,10 +372,22 @@ async function loadAdminTransactions() {
   message.textContent = "Loading transactions...";
   list.innerHTML = "";
 
+  let pagination = document.getElementById("adminTransactionPagination");
+
+  if (!pagination) {
+    pagination = document.createElement("div");
+    pagination.id = "adminTransactionPagination";
+    list.insertAdjacentElement("afterend", pagination);
+  }
+
+  pagination.innerHTML = "";
+
   const { data, error } =
-  await supabaseClient.functions.invoke("admin-transactions", {
-    method: "GET"
-  });
+    await supabaseClient.functions.invoke(
+      "admin-transactions?page=" + adminTransactionPage,
+      { method: "GET" }
+    );
+
   if (error || !data || !data.transactions) {
     message.textContent = "Could not load transactions.";
     console.error("Transaction loading error:", error, data);
@@ -385,7 +400,10 @@ async function loadAdminTransactions() {
   }
 
   message.textContent =
-    "Showing " + data.transactions.length + " recent transactions.";
+    "Showing " + data.transactions.length +
+    " of " + data.totalTransactions +
+    " transactions. Page " + data.page +
+    " of " + data.totalPages + ".";
 
   data.transactions.forEach((transaction) => {
     const card = document.createElement("div");
@@ -404,37 +422,22 @@ async function loadAdminTransactions() {
     heading.style.marginTop = "0";
 
     const details = document.createElement("p");
-    details.textContent =
-      "Customer: " + transaction.username;
+    details.textContent = "Customer: " + transaction.username;
 
     const customerName = document.createElement("p");
-    customerName.textContent =
-      "Full Name: " + transaction.customerName;
+    customerName.textContent = "Full Name: " + transaction.customerName;
 
     const provider = document.createElement("p");
-    provider.textContent =
-      "Provider: " + transaction.provider;
+    provider.textContent = "Provider: " + transaction.provider;
 
     const recipient = document.createElement("p");
-    recipient.textContent =
-      "Recipient: " + transaction.recipient;
+    recipient.textContent = "Recipient: " + transaction.recipient;
 
-    card.append(
-      heading,
-      details,
-      customerName,
-      provider,
-      recipient
-    );
+    card.append(heading, details, customerName, provider, recipient);
 
-    if (
-      transaction.service === "Data Simulation" &&
-      transaction.plan_name
-    ) {
+    if (transaction.service === "Data Simulation" && transaction.plan_name) {
       const dataPlan = document.createElement("p");
-      dataPlan.textContent =
-        "Data Plan: " + transaction.plan_name;
-
+      dataPlan.textContent = "Data Plan: " + transaction.plan_name;
       card.appendChild(dataPlan);
     }
 
@@ -458,14 +461,9 @@ async function loadAdminTransactions() {
         "Discount: -₦" +
         Number(transaction.discount_amount || 0).toLocaleString("en-NG");
 
-      card.append(
-        airtimeValue,
-        serviceCharge,
-        discount
-      );
+      card.append(airtimeValue, serviceCharge, discount);
     }
 
-    // ELECTRICITY PAYMENT BREAKDOWN
     if (
       transaction.service === "Electricity Simulation" &&
       transaction.base_amount !== null &&
@@ -481,10 +479,7 @@ async function loadAdminTransactions() {
         "Service Charge: ₦" +
         Number(transaction.service_charge || 0).toLocaleString("en-NG");
 
-      card.append(
-        electricityValue,
-        electricityCharge
-      );
+      card.append(electricityValue, electricityCharge);
     }
 
     const amount = document.createElement("h3");
@@ -493,7 +488,6 @@ async function loadAdminTransactions() {
       Number(transaction.amount).toLocaleString("en-NG");
 
     const status = document.createElement("span");
-
     status.textContent = transaction.status.toUpperCase();
 
     const statusColors = {
@@ -521,11 +515,35 @@ async function loadAdminTransactions() {
       new Date(transaction.created_at).toLocaleString("en-NG");
 
     card.append(amount, status, date);
-
     list.appendChild(card);
   });
-}
 
+  const previous = document.createElement("button");
+  previous.textContent = "Previous";
+  previous.disabled = !data.hasPreviousPage;
+
+  previous.onclick = () => {
+    adminTransactionPage--;
+    loadAdminTransactions();
+  };
+
+  const next = document.createElement("button");
+  next.textContent = "Next";
+  next.disabled = !data.hasNextPage;
+
+  next.onclick = () => {
+    adminTransactionPage++;
+    loadAdminTransactions();
+  };
+
+  const pageInfo = document.createElement("span");
+  pageInfo.textContent =
+    " Page " + data.page + " of " + data.totalPages + " ";
+  pageInfo.style.margin = "0 12px";
+
+  pagination.append(previous, pageInfo, next);
+}
+    
 
 let adminCustomerPage = 1;
   
