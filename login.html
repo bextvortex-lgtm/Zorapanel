@@ -288,14 +288,21 @@ async function loadCustomerServices() {
   
 
 async function loadCustomerDashboard(user) {
+  const statusElement = document.getElementById("customerAccountStatus");
+
+  statusElement.textContent = "LOADING...";
+  statusElement.style.backgroundColor = "#e9ecef";
+  statusElement.style.color = "#495057";
+
   const { data: profile, error: profileError } = await supabaseClient
     .from("profiles")
-    .select("username, full_name, phone, account_status")
+    .select("username, full_name, account_status")
     .eq("id", user.id)
     .maybeSingle();
 
   if (profileError || !profile) {
-    message.textContent = "Could not load your profile. Please refresh.";
+    message.textContent = "Could not load your account details. Please refresh.";
+    statusElement.textContent = "UNKNOWN";
     return;
   }
 
@@ -306,10 +313,38 @@ async function loadCustomerDashboard(user) {
     user.email?.split("@")[0] ||
     "User";
 
-  message.textContent = "Retrieved username: " + username;
   document.getElementById("customerName").textContent = username;
 
-  await loadCustomerProfile(user, profile);
+  const status = (profile.account_status || "unknown").toLowerCase();
+
+  const statusStyles = {
+    active: {
+      background: "#d1e7dd",
+      color: "#0f5132",
+      label: "ACTIVE"
+    },
+    suspended: {
+      background: "#fff3cd",
+      color: "#664d03",
+      label: "SUSPENDED"
+    },
+    deactivated: {
+      background: "#f8d7da",
+      color: "#842029",
+      label: "DEACTIVATED"
+    },
+    unknown: {
+      background: "#e9ecef",
+      color: "#495057",
+      label: "UNKNOWN"
+    }
+  };
+
+  const style = statusStyles[status] || statusStyles.unknown;
+
+  statusElement.textContent = style.label;
+  statusElement.style.backgroundColor = style.background;
+  statusElement.style.color = style.color;
 
   const { data: wallet, error: walletError } = await supabaseClient
     .from("wallets")
@@ -331,77 +366,6 @@ async function loadCustomerDashboard(user) {
   await loadCustomerServices();
 }
 
-async function loadCustomerProfile(user, profile = null) {
-  if (!profile) {
-    const { data, error } = await supabaseClient
-      .from("profiles")
-      .select("username, full_name, phone, account_status")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (error || !data) {
-      document.getElementById("profileMessage").textContent =
-        "Could not load profile information.";
-      return;
-    }
-
-    profile = data;
-  }
-
-  document.getElementById("profileUsername").value =
-    profile.username || "";
-
-  document.getElementById("profileFullName").value =
-    profile.full_name || "";
-
-  document.getElementById("profileEmail").value =
-    user.email || "";
-
-  document.getElementById("profilePhone").value =
-    profile.phone || "";
-
-  document.getElementById("profileAccountStatus").value =
-    profile.account_status || "Unknown";
-}
-
-document.getElementById("saveProfileButton").onclick = async () => {
-  const profileMessage = document.getElementById("profileMessage");
-  const fullName = document.getElementById("profileFullName").value.trim();
-  const phone = document.getElementById("profilePhone").value.trim();
-
-  if (!fullName || !phone) {
-    profileMessage.textContent =
-      "Please enter your full name and phone number.";
-    return;
-  }
-
-  profileMessage.textContent = "Saving your profile...";
-
-  const { data: authData, error: authError } =
-    await supabaseClient.auth.getUser();
-
-  if (authError || !authData.user) {
-    profileMessage.textContent = "Please log in again.";
-    return;
-  }
-
-  const { error } = await supabaseClient
-    .from("profiles")
-    .update({
-      full_name: fullName,
-      phone: phone
-    })
-    .eq("id", authData.user.id);
-
-  if (error) {
-    profileMessage.textContent =
-      "Profile update failed: " + error.message;
-    return;
-  }
-
-  profileMessage.textContent = "Profile updated successfully!";
-  await loadCustomerProfile(authData.user);
-};
 
  let isPasswordRecovery = false;
 supabaseClient.auth.onAuthStateChange((event, session) => {
