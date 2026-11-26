@@ -1262,9 +1262,10 @@ if (error || !data || !data.isAdmin) {
   loadAdminAirtimeSettings();
  
   // Load customer statistics
-  const { data: stats, error: statsError } =
-    await supabaseClient.functions.invoke("admin-stats");
-
+const { data: stats, error: statsError } =
+  await supabaseClient.functions.invoke("admin-stats", {
+    method: "GET"
+  });
   if (!statsError && stats) {
     document.getElementById("totalCustomers").textContent =
       stats.totalCustomers;
