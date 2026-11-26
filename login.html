@@ -139,6 +139,33 @@ button{width:100%;padding:13px;border:0;border-radius:8px;background:var(--blue)
   </button>
 </div>
   <div id="serviceArea"></div>
+  
+<div id="customerProfile" style="margin:20px 0;padding:18px;border:1px solid #ddd;border-radius:12px;">
+  <h3>👤 My Profile</h3>
+  <p>Manage your personal information.</p>
+
+  <label>Username</label>
+  <input id="profileUsername" type="text" readonly style="width:100%;margin:6px 0 14px;">
+
+  <label>Full Name</label>
+  <input id="profileFullName" type="text" placeholder="Enter your full name" style="width:100%;margin:6px 0 14px;">
+
+  <label>Email Address</label>
+  <input id="profileEmail" type="email" readonly style="width:100%;margin:6px 0 14px;">
+
+  <label>Phone Number</label>
+  <input id="profilePhone" type="tel" placeholder="Enter your phone number" style="width:100%;margin:6px 0 14px;">
+
+  <label>Account Status</label>
+  <input id="profileAccountStatus" type="text" readonly style="width:100%;margin:6px 0 14px;">
+
+  <button id="saveProfileButton" type="button" style="background:#0d6efd;color:white;margin-top:10px;">
+    Save Changes
+  </button>
+
+  <p id="profileMessage" style="font-size:13px;"></p>
+</div>
+  
   <div id="transactionHistory">
   <h3>Transaction History</h3>
 
@@ -263,21 +290,30 @@ async function loadCustomerServices() {
   });
   }
   
+
 async function loadCustomerDashboard(user) {
   const { data: profile, error: profileError } = await supabaseClient
     .from("profiles")
-    .select("username, full_name, phone")
+    .select("username, full_name, phone, account_status")
     .eq("id", user.id)
     .maybeSingle();
 
+  if (profileError || !profile) {
+    message.textContent = "Could not load your profile. Please refresh.";
+    return;
+  }
+
   const username =
-    profile?.username ||
+    profile.username ||
     user.user_metadata?.username ||
-    profile?.full_name ||
+    profile.full_name ||
     user.email?.split("@")[0] ||
     "User";
-message.textContent = "Retrieved username: " + username;
+
+  message.textContent = "Retrieved username: " + username;
   document.getElementById("customerName").textContent = username;
+
+  await loadCustomerProfile(user, profile);
 
   const { data: wallet, error: walletError } = await supabaseClient
     .from("wallets")
@@ -295,8 +331,82 @@ message.textContent = "Retrieved username: " + username;
       style: "currency",
       currency: "NGN"
     });
+
   await loadCustomerServices();
 }
+
+async function loadCustomerProfile(user, profile = null) {
+  if (!profile) {
+    const { data, error } = await supabaseClient
+      .from("profiles")
+      .select("username, full_name, phone, account_status")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (error || !data) {
+      document.getElementById("profileMessage").textContent =
+        "Could not load profile information.";
+      return;
+    }
+
+    profile = data;
+  }
+
+  document.getElementById("profileUsername").value =
+    profile.username || "";
+
+  document.getElementById("profileFullName").value =
+    profile.full_name || "";
+
+  document.getElementById("profileEmail").value =
+    user.email || "";
+
+  document.getElementById("profilePhone").value =
+    profile.phone || "";
+
+  document.getElementById("profileAccountStatus").value =
+    profile.account_status || "Unknown";
+}
+
+document.getElementById("saveProfileButton").onclick = async () => {
+  const profileMessage = document.getElementById("profileMessage");
+  const fullName = document.getElementById("profileFullName").value.trim();
+  const phone = document.getElementById("profilePhone").value.trim();
+
+  if (!fullName || !phone) {
+    profileMessage.textContent =
+      "Please enter your full name and phone number.";
+    return;
+  }
+
+  profileMessage.textContent = "Saving your profile...";
+
+  const { data: authData, error: authError } =
+    await supabaseClient.auth.getUser();
+
+  if (authError || !authData.user) {
+    profileMessage.textContent = "Please log in again.";
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from("profiles")
+    .update({
+      full_name: fullName,
+      phone: phone
+    })
+    .eq("id", authData.user.id);
+
+  if (error) {
+    profileMessage.textContent =
+      "Profile update failed: " + error.message;
+    return;
+  }
+
+  profileMessage.textContent = "Profile updated successfully!";
+  await loadCustomerProfile(authData.user);
+};
+
  let isPasswordRecovery = false;
 supabaseClient.auth.onAuthStateChange((event, session) => {
 
