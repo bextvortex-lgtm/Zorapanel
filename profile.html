@@ -256,24 +256,56 @@ document.getElementById("saveProfileButton").onclick = async () => {
   profileMessage.textContent = "Profile updated successfully!";
 };
 
-document.getElementById("changePasswordButton").onclick = async () => {
-  const password = document.getElementById("newPassword").value;
-  const confirm = document.getElementById("confirmPassword").value;
 
-  if (password.length < 8) {
-    passwordMessage.textContent = "Password must be at least 8 characters.";
+document.getElementById("changePasswordButton").onclick = async () => {
+  const currentPassword =
+    document.getElementById("currentPassword").value;
+
+  const newPassword =
+    document.getElementById("newPassword").value;
+
+  const confirm =
+    document.getElementById("confirmPassword").value;
+
+  if (!currentPassword || !newPassword || !confirm) {
+    passwordMessage.textContent = "Please complete all password fields.";
     return;
   }
 
-  if (password !== confirm) {
-    passwordMessage.textContent = "Passwords do not match.";
+  if (newPassword.length < 8) {
+    passwordMessage.textContent =
+      "New password must be at least 8 characters.";
+    return;
+  }
+
+  if (newPassword !== confirm) {
+    passwordMessage.textContent = "New passwords do not match.";
+    return;
+  }
+
+  if (currentPassword === newPassword) {
+    passwordMessage.textContent =
+      "Your new password must be different from your current password.";
+    return;
+  }
+
+  passwordMessage.textContent = "Verifying current password...";
+
+  const { error: verifyError } =
+    await supabaseClient.auth.signInWithPassword({
+      email: currentUser.email,
+      password: currentPassword
+    });
+
+  if (verifyError) {
+    passwordMessage.textContent = "Current password is incorrect.";
     return;
   }
 
   passwordMessage.textContent = "Updating password...";
 
   const { error } = await supabaseClient.auth.updateUser({
-    password: password
+    password: newPassword
   });
 
   if (error) {
@@ -281,10 +313,13 @@ document.getElementById("changePasswordButton").onclick = async () => {
     return;
   }
 
+  document.getElementById("currentPassword").value = "";
   document.getElementById("newPassword").value = "";
   document.getElementById("confirmPassword").value = "";
+
   passwordMessage.textContent = "Password updated successfully!";
 };
+
 
 document.getElementById("logoutButton").onclick = async () => {
   await supabaseClient.auth.signOut();
